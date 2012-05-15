@@ -1,0 +1,38 @@
+<div class="vimeography-container">
+
+	<div class="vimeography-player">
+			{{#featured}}
+				<iframe id="vimeography-embed" src="http://player.vimeo.com/video/{{id}}?title=0&byline=0&portrait=0&api=1&player_id=vimeography-embed" width="800" height="450" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+			{{/featured}}
+	</div>
+	
+	<div class="vimeography-info">
+		{{#featured}}
+			<h1>{{title}}</h1>
+			<p>{{{description}}}</p>
+		{{/featured}}
+	</div>
+	
+	<div class="vimeography-thumbnails">
+		{{#info}}
+			<div class="row-fluid">
+				{{#row}}
+					<div class="span3">
+						<a href="#{{id}}" title="{{title}}">
+							<img class="vimeography-thumbnail" data-id="{{id}}" data-title="{{title}}" data-duration="{{duration}}" data-plays="{{stats_number_of_plays}}" src="{{thumbnail_medium}}" />
+						</a>
+					</div>
+				{{/row}}
+			</div>
+		{{/info}}
+	</div>
+	    
+	<div class="vimeography-data">
+		{{#info}}
+			<h1 data-id="{{id}}">{{title}}</h1>		
+			<p data-id="{{id}}" class="vimeography-description">{{{description}}}</p>
+		{{/info}}
+	</div>
+
+	<p class="vimeography-credit">//// Running on Vimeography</p>
+</div>

@@ -1,0 +1,33 @@
+<div id="vimeography-container">
+
+	<div id="vimeography-thumbnails">
+		{{#info}}
+			<div class="crop">
+			    <a class="vimeography-thumbnail" href="#{{id}}" title="{{title}}"><img src="{{thumbnail_small}}" alt="{{title}}" height="75" width="100" /></a>
+			</div>
+		{{/info}}
+	</div>
+	
+	<div id="vimeography-loader">
+		<div id="vimeography-player">
+			{{#featured}}
+				<iframe id="vimeography-embed" src="http://player.vimeo.com/video/{{id}}?title=0&byline=0&portrait=0&api=1&player_id=vimeography-embed" width="1000" height="564" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+			{{/featured}}
+		</div>
+	</div>
+	
+	<div id="vimeography-info">
+		{{#featured}}
+			<h1>{{title}}</h1>
+			<p>{{{description}}}</p>
+		{{/featured}}
+	</div>
+	
+	<div id="vimeography-data">
+		{{#info}}
+			<h1 data-id="{{id}}">{{title}}</h1>		
+			<p data-id="{{id}}" class="vimeography-description">{{{description}}}</p>
+		{{/info}}
+	</div>
+	
+</div>

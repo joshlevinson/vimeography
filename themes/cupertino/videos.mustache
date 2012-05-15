@@ -1,0 +1,29 @@
+<div id="vimeography-container">
+	<div id="vimeography-main-wrapper">
+	
+		<div id="vimeography-main">
+			{{#info}}
+				<div data-id="{{id}}" style="background: url('{{thumbnail_large}}') no-repeat;background-size: 800px 450px;">
+					<span>{{title}}</span>
+				</div>
+			{{/info}}
+		</div>
+		
+		<div id="vimeography-thumbnails-wrapper">
+			<div id="vimeography-thumbnails">
+				{{#info}}
+					<a href="#" data-id="{{id}}"><img src="{{thumbnail_medium}}" alt="{{title}}" class="min" /></a>
+				{{/info}}
+			</div>
+		</div>
+		
+		<button type="button" id="vimeography-arrow"></button>
+	</div>	    	
+</div>
+
+
+<!-- <iframe src="http://player.vimeo.com/video/28380190?title=0&amp;byline=0&amp;portrait=0&amp;autoplay=0" width="800" height="450" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe> -->
+	
+{{#info}}		
+	<p data-id="{{id}}" class="vimeography-description" style="display:none;">{{description}}</p>
+{{/info}}

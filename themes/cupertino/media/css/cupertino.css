@@ -1,0 +1,103 @@
+#vimeography-container 
+{
+	width: 1000px;
+	height: 470px;
+	margin: 0 auto;
+}
+
+#vimeography-main-wrapper {
+	position: relative;
+	width: 1000px;
+	height: 450px;
+	background: #fff;
+	margin: 0 auto;
+	-webkit-border-bottom-right-radius: 20px;
+	-webkit-border-bottom-left-radius: 20px;
+	-moz-border-radius-bottomright: 10px;
+	-moz-border-radius-bottomleft: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	overflow: hidden;
+	-webkit-box-shadow: 0px 2px 5px #888;
+	-moz-box-shadow: 0px 2px 5px #888;
+	box-shadow: 0px 2px 5px #888;
+}
+
+#vimeography-main-wrapper img {
+	display: block;
+	border: 0 none;
+}
+
+#vimeography-main-wrapper span {
+	background: rgba(255,255,255,.80);
+    bottom: 10px;
+    color: #4D4D4D;
+    display: block;
+    font: 24px Georgia,serif;
+    left: 10px;
+    padding: 1px 6px;
+    position: absolute;
+}
+
+#vimeography-thumbnails-wrapper {
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 200px;
+	height: 450px;
+	overflow: hidden;
+}
+
+#vimeography-thumbnails {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 200px;
+}
+
+#vimeography-thumbnails a {
+	position: relative;
+	display: block;
+	width: 200px;
+	height: 150px;
+}
+#vimeography-thumbnails a .min {
+	width: 200px;
+	height: 150px;
+}
+
+#vimeography-thumbnails a .max {
+	display: none;
+	width: 800px;
+	height: 450px;
+}
+
+#vimeography-main {
+	position: relative;
+	width: 800px;
+	height: 450px;
+}
+
+#vimeography-main div {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 800px;
+	height: 450px;
+	opacity: 0;
+}
+
+#vimeography-arrow {
+    background: url("../img/arrow.png") no-repeat scroll 0 0 transparent;
+    border: 0 none;
+    bottom: 5px;
+    cursor: pointer;
+    height: 42px;
+    position: absolute;
+    right: 78px;
+    width: 42px;
+}
+
+#vimeography-arrow.btn-down {
+	background-position: 0 100%;
+}

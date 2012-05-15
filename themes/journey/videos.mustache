@@ -1,0 +1,44 @@
+<div id="vimeography-container">
+	<div id="vimeography-main" class="showcase">
+		{{#info}}
+	    <div class="showcase-slide">
+	        <div class="showcase-content">
+	            <div class="showcase-content-wrapper">
+	            	<div style="background: url('{{thumbnail_large}}') no-repeat; width:671px; height:377px;background-size: 671px 377px;">
+	            		<div class="vimeography-playbar" data-id="{{id}}">
+	            			<span class="play-button"></span>
+	            			<h1>{{title}}</h1>
+	            			<div class="vimeography-playbar-background"></div>
+	            		</div>
+	            	</div>
+	            </div>
+	        </div>
+	        
+			<!-- Put the thumbnail content in a div with the class .showcase-thumbnail -->
+			<div class="showcase-thumbnail" data-id="{{id}}" data-title="{{title}}" data-duration="{{duration}}" data-plays="{{stats_number_of_plays}}">
+			
+				<div class="vimeography-thumbnail-crop">
+					<img class="vimeography-thumbnail" src="{{thumbnail_medium}}" height="150" width="200" />
+				</div>
+				
+				<!-- The div below with the class .showcase-thumbnail-cover is used for the thumbnails active state. -->
+				<div class="showcase-thumbnail-cover"></div>
+				<!-- The div below with the class .showcase-thumbnail-caption contains the thumbnail caption. -->
+				<div class="showcase-thumbnail-caption">{{title}}</div>
+				
+			</div>
+	    </div>
+	    {{/info}}
+	</div>
+	    		
+	<div id="vimeography-sidebar">
+		<h1 id="vimeography-title">Placeholder</h1>
+		<h2 id="vimeography-duration">03:20</h2>
+		<p id="vimeography-description">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+		<span id="vimeography-plays">&#9658; <span id="vimeography-play-count"></span></span>
+	</div>
+</div>
+	
+{{#info}}		
+	<p data-id="{{id}}" class="vimeography-description" style="display:none;">{{{description}}}</p>
+{{/info}}

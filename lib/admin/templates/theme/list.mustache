@@ -1,0 +1,27 @@
+<div class="wrap wp_bootstrap">
+	<div class="icon32" id="icon-options-general"><br></div>
+	<h2 class="page-title">My Themes</h2>
+	
+	<ul id="themes">
+		{{#themes}}
+			<li>
+				<div class="theme-container">
+					<div class="theme-image">
+						<img alt="{{name}}" src="{{thumbnail}}" />
+					</div>
+					
+					<div class="theme-details">
+						<a href="#" data-theme="{{name}}">{{name}}</a> 
+						<span></span>
+					</div>
+					
+					<a href="#" data-theme="{{name}}" class="theme-info" style="opacity: 0;">
+						<strong>{{name}}</strong>
+						<span>{{description}}</span>
+					</a>
+				</div>
+			</li>
+		{{/themes}}
+	</ul>
+</div>
+
