@@ -29,11 +29,10 @@ class Vimeography
 	public function __construct()
 	{
 		add_action( 'admin_init', array(&$this, 'vimeography_requires_wordpress_version') );
-		add_action( 'admin_init', array(&$this, 'vimeography_init' ) );
 		add_action( 'admin_menu', array(&$this, 'vimeography_add_menu'));
 		
 		register_activation_hook(VIMEOGRAPHY_BASENAME, array(&$this, 'vimeography_create_tables'));
-		register_uninstall_hook(VIMEOGRAPHY_BASENAME, 'vimeography_delete_tables');
+		register_uninstall_hook(VIMEOGRAPHY_BASENAME, array(&$this, 'vimeography_delete_tables'));
 		
 		add_filter( 'plugin_action_links', array(&$this, 'vimeography_filter_plugin_actions'), 10, 2 );
 		add_shortcode('vimeography', array(&$this, 'vimeography_shortcode'));
@@ -60,33 +59,7 @@ class Vimeography
 			}
 		}
 	}
-			
-	/**
-	 * Init plugin options to white list our options
-	 * Runs when the admin_init hook fires and registers the plugin with settings api
-	 * 
-	 * @access public
-	 * @return void
-	 */
-	public function vimeography_init(){
-		register_setting( 'vimeography_advanced_settings', 'vimeography_advanced_settings', array(&$this, 'vimeography_validate_advanced_settings') );
-		
-		wp_register_style( 'bootstrap_css', VIMEOGRAPHY_URL.'media/css/bootstrap.min.css');
-		wp_register_style( 'bootstrap_responsive_css', VIMEOGRAPHY_URL.'media/css/bootstrap-responsive.min.css');
-		wp_register_style( 'vimeography-admin.css', VIMEOGRAPHY_URL.'media/css/admin.css');
-		wp_register_script( 'bootstrap_tab_js', VIMEOGRAPHY_URL.'media/js/bootstrap-tab.js');
-		wp_register_script( 'bootstrap_alert_js', VIMEOGRAPHY_URL.'media/js/bootstrap-alert.js');
-		wp_register_script( 'vimeography-admin.js', VIMEOGRAPHY_URL.'media/js/admin.js', 'jquery');
-		
-		wp_enqueue_style( 'bootstrap_css');
-		wp_enqueue_style( 'bootstrap_responsive_css');
-		wp_enqueue_style( 'vimeography-admin.css');
-		wp_enqueue_script( 'jquery');
-		wp_enqueue_script( 'bootstrap_tab_js');
-		wp_enqueue_script( 'bootstrap_alert_js');
-		wp_enqueue_script( 'vimeography-admin.js');
-	}
-	
+				
 	/**
 	 * Add Settings link to "installed plugins" admin page.
 	 * 
@@ -128,6 +101,21 @@ class Vimeography
 		if ( !current_user_can( 'manage_options' ) )  {
 			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 		}
+		
+		wp_register_style( 'bootstrap_css', VIMEOGRAPHY_URL.'media/css/bootstrap.min.css');
+		wp_register_style( 'bootstrap_responsive_css', VIMEOGRAPHY_URL.'media/css/bootstrap-responsive.min.css');
+		wp_register_style( 'vimeography-admin.css', VIMEOGRAPHY_URL.'media/css/admin.css');
+		wp_register_script( 'bootstrap_tab_js', VIMEOGRAPHY_URL.'media/js/bootstrap-tab.js');
+		wp_register_script( 'bootstrap_alert_js', VIMEOGRAPHY_URL.'media/js/bootstrap-alert.js');
+		wp_register_script( 'vimeography-admin.js', VIMEOGRAPHY_URL.'media/js/admin.js', 'jquery');
+		
+		wp_enqueue_style( 'bootstrap_css');
+		wp_enqueue_style( 'bootstrap_responsive_css');
+		wp_enqueue_style( 'vimeography-admin.css');
+		wp_enqueue_script( 'jquery');
+		wp_enqueue_script( 'bootstrap_tab_js');
+		wp_enqueue_script( 'bootstrap_alert_js');
+		wp_enqueue_script( 'vimeography-admin.js');
 				
 		switch(current_filter())
 		{
@@ -325,12 +313,6 @@ class Vimeography
 	public static function get_vimeography_cache($id)
 	{
 		return FALSE === ( $vimeography_cache_results = get_transient( 'vimeography_cache_'.$id ) ) ? FALSE : $vimeography_cache_results;
-		
-	    /*if ( FALSE === ( $vimeography_cache_results = get_transient( 'vimeography_cache' ) ) ) {
-	    	return FALSE;
-	    }
-	    
-	    return $vimeography_cache_results;*/
     }
     
     /**

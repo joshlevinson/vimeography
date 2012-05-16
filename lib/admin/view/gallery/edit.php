@@ -198,6 +198,19 @@ class Vimeography_Gallery_Edit extends Mustache
 		}
 	}
 	
+	private static function _delete_gallery()
+	{
+		$wpdb->query( $wpdb->prepare( 			"
+			Delete gallery 
+			from VIMEOGRAPHY_GALLERY_TABLE gallery
+			Inner Join VIMEOGRAPHY_GALLERY_META_TABLE meta
+			on  gallery.id = meta.gallery_id
+			WHERE gallery.id = %d;
+			", 
+		        $id, 
+		) );
+	}
+	
 	public static function delete_vimeography_cache($id)
     {
     	return delete_transient('vimeography_cache_'.$id);
