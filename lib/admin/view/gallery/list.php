@@ -4,9 +4,13 @@ class Vimeography_Gallery_List extends Mustache
 {
 	public $galleries;
 	public $pagination;
+	public $messages;
     
 	public function __construct()
 	{
+		if (isset($_POST))
+			$this->_validate_form();
+
 		wp_register_script( 'bootstrap_tooltip_js', VIMEOGRAPHY_URL.'media/js/bootstrap-tooltip.js');
 		wp_enqueue_script( 'bootstrap_tooltip_js');
 		$this->galleries = $this->_get_galleries_to_display();	
@@ -20,6 +24,11 @@ class Vimeography_Gallery_List extends Mustache
 	public function admin_url()
 	{
 		return get_admin_url().'admin.php?page=vimeography-';
+	}
+	
+	public function nonce()
+	{
+	   return wp_nonce_field('vimeography-list-action','vimeography-verification');
 	}
 		
 	public function galleries_to_show()
@@ -77,6 +86,70 @@ class Vimeography_Gallery_List extends Mustache
 		return $wpdb->get_results('SELECT * from '.VIMEOGRAPHY_GALLERY_META_TABLE.' AS meta JOIN '.VIMEOGRAPHY_GALLERY_TABLE.' AS gallery ON meta.gallery_id = gallery.id LIMIT '.$limit.' OFFSET '.$offset.';');
 	}
 	
+	protected function _validate_form()
+	{
+		// if this fails, check_admin_referer() will automatically print a "failed" page and die.
+		if ( !empty($_POST['vimeography-list']) && check_admin_referer('vimeography-list-action','vimeography-verification') )
+		{
+			global $wpdb;
+			$id = $wpdb->escape(intval($_POST['vimeography-list']['id']));
+			$action = $wpdb->escape(wp_filter_nohtml_kses($_POST['vimeography-list']['action']));
+			
+			if ($action === 'delete')
+				$this->_delete_gallery($id);
+				
+			if ($action === 'duplicate')
+				$this->_duplicate_gallery($id);
+		}
+	}
+	
+	private function _duplicate_gallery($id)
+	{
+		try
+		{
+			global $wpdb;
+			$duplicate = $wpdb->get_results('SELECT * from '.VIMEOGRAPHY_GALLERY_META_TABLE.' AS meta JOIN '.VIMEOGRAPHY_GALLERY_TABLE.' AS gallery ON meta.gallery_id = gallery.id WHERE meta.gallery_id = '.$id.' LIMIT 1;');
+			$result = $wpdb->insert( VIMEOGRAPHY_GALLERY_TABLE, array( 'title' => $duplicate[0]->title, 'date_created' => current_time('mysql'),  'is_active' => 1 ) );
+			if ($result === FALSE)
+				throw new Exception(__('Your gallery could not be duplicated.'));
+				
+			$gallery_id = $wpdb->insert_id;
+			$result = $wpdb->insert( VIMEOGRAPHY_GALLERY_META_TABLE, array( 'gallery_id' => $gallery_id, 'source_type' => $duplicate[0]->source_type, 'source_name' => $duplicate[0]->source_name, 'featured_video' => $duplicate[0]->featured_video, 'cache_timeout' => $duplicate[0]->cache_timeout, 'theme_name' => $duplicate[0]->theme_name ) );
+			
+			if ($result === FALSE)
+				throw new Exception(__('Your gallery could not be duplicated.'));
+				
+			$this->messages[] = array('type' => 'success', 'heading' => __('Gallery duplicated.'), 'message' => __('You now have a clone of your own.'));
+
+		}
+		catch (Exception $e)
+		{
+			$this->messages[] = array('type' => 'error', 'heading' => __('Ruh Roh.'), 'message' => $e->getMessage());
+		}
+	}
+	
+	private function _delete_gallery($id)
+	{
+		try
+		{
+			global $wpdb;
+			$result = $wpdb->query('DELETE gallery, meta FROM '.VIMEOGRAPHY_GALLERY_TABLE.' gallery, '.VIMEOGRAPHY_GALLERY_META_TABLE.' meta WHERE gallery.id = '.$id.' AND meta.gallery_id = '.$id.';');
+						
+			if ($result === FALSE)
+				throw new Exception(__('Your gallery could not be deleted.'));
+				
+			// Delete the cache separately
+			$this->delete_vimeography_cache($id);
+				
+			$this->messages[] = array('type' => 'success', 'heading' => __('Gallery deleted.'), 'message' => __('See you later, sucker.'));
+
+		}
+		catch (Exception $e)
+		{
+			$this->messages[] = array('type' => 'error', 'heading' => __('Ruh Roh.'), 'message' => $e->getMessage());
+		}
+	}
+	
 	/**
 	 * This just creates a huge list of numbered pages at the bottom…. not pretty if someone creates 100 galleries, but not sure who might actually do that.
 	 * 
@@ -85,7 +158,7 @@ class Vimeography_Gallery_List extends Mustache
 	 * @param mixed $number_of_pages
 	 * @return void
 	 */
-	protected function _do_pagination($current_page, $number_of_pages)
+	private function _do_pagination($current_page, $number_of_pages)
 	{
 		if ($number_of_pages <= 1) return FALSE;
 				
@@ -105,5 +178,10 @@ class Vimeography_Gallery_List extends Mustache
 		return $pagination;
 		
 	}
+	
+	public static function delete_vimeography_cache($id)
+    {
+    	return delete_transient('vimeography_cache_'.$id);
+    }
 
 }

@@ -2,6 +2,24 @@
 (function($){
 	$(document).ready(function(){
 		$('.vimeography-question').tooltip();
+		
+		$('.vimeography-duplicate-gallery').click(function(e){
+			var id = $(this).attr('data-id');
+			$('#vimeography-list-action').val('duplicate');
+			$('#vimeography-list-id').val(id);
+			$('#vimeography-list-form').submit();
+		});
+		
+		$('.vimeography-delete-gallery').click(function(e){
+			e.preventDefault();
+			var id = $(this).attr('data-id');
+			if(confirm('WARNING: You are about to delete this gallery. \'Cancel\' to stop, \'OK\' to delete.'))
+			{
+				$('#vimeography-list-action').val('delete');
+				$('#vimeography-list-id').val(id);
+				$('#vimeography-list-form').submit();
+			}
+		});
 	});
 })(jQuery)
 </script>
@@ -29,13 +47,21 @@
 		<!-- Display Plugin Icon, Header, and Description -->
 		<div class="icon32" id="icon-options-general"><br></div>
 		<h2 class="page-title">Edit Galleries <a href="{{new_gallery_url}}" class="button add-new-h2">Add New</a></h2>
+		
+		{{#messages}}
+			<div class="alert alert-{{type}} fade in">
+				<a class="close" data-dismiss="alert" href="#">&times;</a>
+				<h3 class="alert-heading">{{heading}}</h3>
+				<p>{{message}}</p>
+			</div>
+		{{/messages}}
 	</div>
 	
 	{{#galleries_to_show}}
 		<table cellspacing="0" class="widefat fixed">
 			<thead>
 				<tr>
-			        <th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox" onclick="jQuery('.gform_list_checkbox').attr('checked', this.checked);" name="form_bulk_check_all"></th>
+			        <th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox" onclick="jQuery('.vimeography_list_checkbox').attr('checked', this.checked);" name="form_bulk_check_all"></th>
 		            <th class="manage-column column-cb check-column" id="active" scope="col"></th>
 		            <th style="width:50px;" class="manage-column" id="id" scope="col">Id</th>
 		            <th width="360" class="manage-column column-title" id="title" scope="col">Title</th>
@@ -46,7 +72,7 @@
 		
 		    <tfoot>
 		        <tr>
-		        	<th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox" onclick="jQuery('.gform_list_checkbox').attr('checked', this.checked);" name="form_bulk_check_all"></th>
+		        	<th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox" onclick="jQuery('.vimeography_list_checkbox').attr('checked', this.checked);" name="form_bulk_check_all"></th>
 		            <th class="manage-column column-cb check-column" id="active" scope="col"></th>
 		            <th class="manage-column" id="id" scope="col">Id</th>
 		            <th width="350" class="manage-column column-title" id="title" scope="col">Title</th>
@@ -59,9 +85,9 @@
 		    
 		    	{{#galleries}}
 					<tr valign="top" class="author-self status-inherit">
-						<th class="check-column" scope="row"><input type="checkbox" class="gform_list_checkbox" value="2" name="form[]"></th>
+						<th class="check-column" scope="row"><input type="checkbox" class="vimeography_list_checkbox" value="{{id}}" name="form[]"></th>
 			                                    
-			            <td><img onclick="ToggleActive(this, 2); " title="Active" alt="Active" style="cursor: pointer;" src="http://vimeography/wp-content/plugins/gravityforms/images/active1.png"></td>
+			            <td><div class="wp_bootstrap"><i class="icon-ok" style="cursor:pointer;"></i></div></td>
 			            <td class="column-id">{{id}}</td>
 			            <td class="column-title">
 				            <strong><a title="Edit" href="{{edit_url}}" class="row-title">{{title}}</a></strong>
@@ -69,8 +95,8 @@
 				            <div class="row-actions">
 				                <span class="edit"><a href="{{edit_url}}" title="Edit this gallery">Edit</a> |</span>
 				                <span class="edit"><a target="_blank" href="{{edit_url}}" title="Preview this gallery">Preview</a> |</span>
-								<span class="edit"><a href="javascript:DuplicateForm({{id}});" title="Duplicate this gallery">Duplicate</a> |</span>
-								<span class="edit"><a href="javascript: if(confirm('WARNING: You are about to delete this gallery. \'Cancel\' to stop, \'OK\' to delete.')){ DeleteForm({{id}});}" title="Delete">Delete</a></span>
+								<span class="edit"><a class="vimeography-duplicate-gallery" data-id="{{id}}" href="#" title="Duplicate this gallery">Duplicate</a> |</span>
+								<span class="edit"><a class="vimeography-delete-gallery" data-id="{{id}}" href="#" title="Delete">Delete</a></span>
 							</div>
 				        </td>
 				        <td class="column-date"><strong><a href="{{source_url}}" target="_blank" title="{{source_type}} called {{source_name}}">{{source_url}}</a></strong></td>
@@ -80,6 +106,11 @@
 								
 			</tbody>
 		</table>
+		<form id="vimeography-list-form" method="post" action="{{admin_url}}edit-galleries">
+			<input id="vimeography-list-action" type="hidden" name="vimeography-list[action]" value="" />
+			<input id="vimeography-list-id" type="hidden" name="vimeography-list[id]" value="" />
+			{{{nonce}}}
+		</form>
 		{{#pagination}}
 			<div class="wp_bootstrap">
 			    <div class="pagination">
