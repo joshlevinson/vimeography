@@ -44,7 +44,7 @@ e.g.
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= How do I add a gallery to my post or page? =
 
 An answer to that question.
 

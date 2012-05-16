@@ -8,7 +8,7 @@
 	Author URI: http://davekiss.com
 	License: MIT
 */
-
+	
 if (!function_exists('json_decode'))
 	wp_die('Vimeography needs the JSON PHP extension.');
 	
@@ -32,7 +32,6 @@ class Vimeography
 		add_action( 'admin_menu', array(&$this, 'vimeography_add_menu'));
 		
 		register_activation_hook(VIMEOGRAPHY_BASENAME, array(&$this, 'vimeography_create_tables'));
-		register_uninstall_hook(VIMEOGRAPHY_BASENAME, array(&$this, 'vimeography_delete_tables'));
 		
 		add_filter( 'plugin_action_links', array(&$this, 'vimeography_filter_plugin_actions'), 10, 2 );
 		add_shortcode('vimeography', array(&$this, 'vimeography_shortcode'));
@@ -224,23 +223,7 @@ class Vimeography
 		dbDelta($sql);
 		add_option("vimeography_db_version", VIMEOGRAPHY_VERSION);
 	}
-	
-	/**
-	 * Delete options table entries ONLY when plugin deactivated AND deleted
-	 * 
-	 * @access public
-	 * @return void
-	 */
-	public static function vimeography_delete_tables() {
-		delete_option('vimeography_advanced_settings');
-		delete_option('vimeography_default_settings');
-		delete_option('vimeography_db_version');
-		
-		global $wpdb;
-				
-		$wpdb->query('DROP TABLE '.VIMEOGRAPHY_GALLERY_TABLE.', '.VIMEOGRAPHY_GALLERY_META_TABLE);
-	}
-															   	
+																   	
 	/**
 	 * Read the shortcode and return the output.
 	 * example:
