@@ -117,11 +117,32 @@ class Vimeography_Core extends Vimeography
 		foreach ($urls as $url)
 		{
 			$response = wp_remote_get($url);
-										
-			if (! $response OR strpos($response['body'], 'not found'))
-				throw new Vimeography_Exception('Error retrieving data from Vimeo API! '. $response['body']);
+			
+			if ($response->errors)
+			{
+				foreach ($response->errors as $error)
+				{
+					throw new Vimeography_Exception('the plugin did not retrieve data from the Vimeo API! '. $error[0]);
+				}
+			}
 				
+			if (strpos($response['body'], 'not found'))
+				throw new Vimeography_Exception('the plugin could not retrieve data from the Vimeo API! '. $response['body']);
+																		
 			$result[] = $response['body'];
+						
+			if (count(json_decode($response['body'])) === 20)
+			{
+				// let's get some more stinkin' videos!
+				$second_set = wp_remote_get($url.'?page=2');
+				
+				if (! $second_set)
+					throw new Vimeography_Exception('Could not connect to the Vimeo API. Check your interwebs connection!');
+					
+				if (strpos($second_set['body'], 'not found'))
+					throw new Vimeography_Exception('Error retrieving data from Vimeo API! '. $response['body']);
+				
+			}
 		}
 		return $result;
 	}
@@ -148,7 +169,17 @@ class Vimeography_Core extends Vimeography
 
 			if (isset($data[1]))
 			{
+				// featured video option is set
 				$featured = json_decode($data[1]);
+				
+				// check if featured video is in the source array, and if so, remove it to avoid duplicates.
+				$i = 0;
+				foreach ($mustache->data as $video)
+				{
+					if ($video->id === $featured[0]->id)
+						unset($mustache->data[$i]);
+					$i++;
+				}
 			}
 			else
 			{
