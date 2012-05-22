@@ -118,7 +118,7 @@ class Vimeography_Core extends Vimeography
 		{
 			$response = wp_remote_get($url);
 			
-			if ($response->errors)
+			if (isset($response->errors))
 			{
 				foreach ($response->errors as $error)
 				{

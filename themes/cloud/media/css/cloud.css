@@ -1,26 +1,16 @@
-ul.tag-cloud {text-align:justify;}
+ul.vimeography-tag-cloud {text-align:justify;}
 /* display the individual items next to each other, not one-per-line */
-.tag-cloud LI { display: inline; }
-.tag-cloud a {
+ul.vimeography-tag-cloud li { display: inline; }
+ul.vimeography-tag-cloud a {
 	text-decoration: none; 
 	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 	line-height: 1.2em;
 }
 
-.play a {
-	border-color:transparent transparent transparent #000;
-	border-style:solid;
-	border-width:8px 0 8px 12px;
-	float:left;
-	height:0;
-	text-indent:-9999px;
-	width:0;
-}
-
 /* size is purely presentational, based upon the class */
-.tag-cloud .not-popular a { font-size: 1em; font-weight: 100; color: #ccc; text-transform: lowercase; }
-.tag-cloud .not-very-popular a { font-size: 1.3em; font-weight: 300; color: #aaa; }
-.tag-cloud .somewhat-popular a { font-size: 1.6em; font-weight: 500; color: #999; }
-.tag-cloud .popular a { font-size: 1.9em; font-weight: 700; color: #666; }
-.tag-cloud .very-popular a { font-size: 2.2em; font-weight: 900; color: #333; }
-.tag-cloud .ultra-popular a { font-size: 2.5em; text-transform: uppercase; font-weight: bold; color: #111;}
+ul.vimeography-tag-cloud .not-popular a { font-size: 1em; font-weight: 100; color: #ccc; text-transform: lowercase; }
+ul.vimeography-tag-cloud .not-very-popular a { font-size: 1.3em; font-weight: 300; color: #aaa; }
+ul.vimeography-tag-cloud .somewhat-popular a { font-size: 1.6em; font-weight: 500; color: #999; }
+ul.vimeography-tag-cloud .popular a { font-size: 1.9em; font-weight: 700; color: #666; }
+ul.vimeography-tag-cloud .very-popular a { font-size: 2.2em; font-weight: 900; color: #333; }
+ul.vimeography-tag-cloud .ultra-popular a { font-size: 2.5em; text-transform: uppercase; font-weight: bold; color: #111;}

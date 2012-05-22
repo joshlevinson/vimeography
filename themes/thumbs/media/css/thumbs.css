@@ -1,38 +1,54 @@
-#vimeography-container {
-	width: 1000px;
-	margin: 0 auto;
+.vimeography-thumbs-container { margin: 0 auto; max-width: 1000px; margin: 0 auto;}
+
+.vimeography-thumbs-player-wrapper {
+    max-width: 100%;
+    width: 1000px;
+    
+	background: url('../img/loader.gif') no-repeat 50% 50%;
+	clear: left;
 }
 
-#vimeography-thumbnails {
+.vimeography-thumbs-player {
+	position: relative;
+	padding-bottom: 56.25%;
+	padding-top: 30px;
+	height: 0;
+	overflow: hidden;
+	opacity: 0;
+}
+
+.vimeography-thumbs-player iframe,  
+.vimeography-thumbs-player object,  
+.vimeography-thumbs-player embed {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.vimeography-thumbs-thumbnails {
 	display: block;
 	height: 50px;
 }
 
-.crop {
+.vimeography-thumbs-crop {
 	width: 50px; 
 	height: 50px; 
 	overflow: hidden; 
 	float: left;
 }
 
-.crop img {
+.vimeography-thumbs-crop img {
 	max-width: 100px; 
 	height: 75px; 
 	margin: -12px 0 0 -25px; 
 }
 
-#vimeography-data {
+.vimeography-thumbs-data {
 	display: none;
 }
 
-#vimeography-loader {
-	background: url('../img/loader.gif') no-repeat 50% 50%;
-}
-
-#vimeography-player {
-	opacity: 0;
-}
-
-.read-more a:visited, .read-less a:visited {
+.vimeography-thumbs-container .read-more a:visited, .read-less a:visited {
 	color: #0000ff;
 }

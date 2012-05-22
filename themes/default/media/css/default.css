@@ -1,8 +1,6 @@
-.vimeography-container 
-{
-	margin: 0 auto;
-}
-.vimeography-player {
+.vimeography-default-container { margin: 0 auto; }
+
+.vimeography-default-player {
 	position: relative;
 	padding-bottom: 56.25%;
 	padding-top: 30px;
@@ -10,9 +8,9 @@
 	overflow: hidden;
 }
 
-.vimeography-player iframe,  
-.vimeography-player object,  
-.vimeography-player embed {
+.vimeography-default-player iframe,  
+.vimeography-default-player object,  
+.vimeography-default-player embed {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -20,14 +18,14 @@
 	height: 100%;
 }
 
-.vimeography-info h1 {
+.vimeography-default-info h1 {
     color: #222222;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 33px;
     letter-spacing: -1px;
 }
 
-.vimeography-info p {
+.vimeography-default-info p {
 	color: #333333;
     font-family: Arial,Sans-serif;
     font-size: 15px;
@@ -35,17 +33,11 @@
     line-height: 23.5px;
 }
 
-.vimeography-thumbnails img
+.vimeography-default-thumbnails img
 {
 	float: left;
 	width: 100%;
 	padding-bottom: 15px;
 }
 
-.vimeography-credit {
-	clear: both;
-}
-
-.vimeography-data {
-	display: none;
-}
+.vimeography-default-data { display: none; }

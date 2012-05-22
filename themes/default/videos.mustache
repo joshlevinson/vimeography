@@ -1,25 +1,25 @@
-<div class="vimeography-container">
+<div class="vimeography-default-container">
 
-	<div class="vimeography-player">
+	<div class="vimeography-default-player">
 			{{#featured}}
 				<iframe id="vimeography-embed" src="http://player.vimeo.com/video/{{id}}?title=0&byline=0&portrait=0&api=1&player_id=vimeography-embed" width="800" height="450" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 			{{/featured}}
 	</div>
 	
-	<div class="vimeography-info">
+	<div class="vimeography-default-info">
 		{{#featured}}
 			<h1>{{title}}</h1>
 			<p>{{{description}}}</p>
 		{{/featured}}
 	</div>
 	
-	<div class="vimeography-thumbnails">
+	<div class="vimeography-default-thumbnails">
 		{{#info}}
 			<div class="row-fluid">
 				{{#row}}
 					<div class="span3">
-						<a href="#{{id}}" title="{{title}}">
-							<img class="vimeography-thumbnail" data-id="{{id}}" data-title="{{title}}" data-duration="{{duration}}" data-plays="{{stats_number_of_plays}}" src="{{thumbnail_medium}}" />
+						<a href="#" data-id="{{id}}" title="{{title}}">
+							<img class="vimeography-default-thumbnail" data-id="{{id}}" data-title="{{title}}" data-duration="{{duration}}" data-plays="{{stats_number_of_plays}}" src="{{thumbnail_medium}}" />
 						</a>
 					</div>
 				{{/row}}
@@ -27,12 +27,10 @@
 		{{/info}}
 	</div>
 	    
-	<div class="vimeography-data">
+	<div class="vimeography-default-data">
 		{{#info}}
 			<h1 data-id="{{id}}">{{title}}</h1>		
-			<p data-id="{{id}}" class="vimeography-description">{{{description}}}</p>
+			<p data-id="{{id}}" class="vimeography-default-description">{{{description}}}</p>
 		{{/info}}
 	</div>
-
-	<p class="vimeography-credit">//// Running on Vimeography</p>
 </div>

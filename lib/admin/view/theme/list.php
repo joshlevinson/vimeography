@@ -51,5 +51,10 @@ class Vimeography_Theme_List extends Mustache
 		
 		return $themes;
 	}
+	
+	private static function _install_theme()
+	{
+		$result = unzip_file( $file, $to );
+	}
            
 }
