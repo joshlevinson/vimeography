@@ -3,7 +3,7 @@
 	Plugin Name: Vimeography
 	Plugin URI: http://vimeography.com
 	Description: Vimeography is the easiest way to set up a custom Vimeo gallery on your site.
-	Version: 0.2
+	Version: 0.3
 	Author: Dave Kiss
 	Author URI: http://davekiss.com
 	License: MIT
@@ -21,6 +21,8 @@ define( 'VIMEOGRAPHY_BASENAME', plugin_basename( __FILE__ ) );
 define( 'VIMEOGRAPHY_VERSION', '0.2');
 define( 'VIMEOGRAPHY_GALLERY_TABLE', $wpdb->prefix . "vimeography_gallery");
 define( 'VIMEOGRAPHY_GALLERY_META_TABLE', $wpdb->prefix . "vimeography_gallery_meta");
+define( 'VIMEOGRAPHY_CURRENT_PAGE', basename($_SERVER['PHP_SELF']));
+
 
 require_once(VIMEOGRAPHY_PATH . '/vendor/mustache/Mustache.php');
 		
@@ -28,6 +30,7 @@ class Vimeography
 {								
 	public function __construct()
 	{
+		add_action ('init', array(&$this, 'vimeography_init'));
 		add_action( 'admin_init', array(&$this, 'vimeography_requires_wordpress_version') );
 		add_action( 'admin_menu', array(&$this, 'vimeography_add_menu'));
 		
@@ -35,9 +38,34 @@ class Vimeography
 		
 		add_filter( 'plugin_action_links', array(&$this, 'vimeography_filter_plugin_actions'), 10, 2 );
 		add_shortcode('vimeography', array(&$this, 'vimeography_shortcode'));
-		
+				
 		// Add shortcode support for widgets  
 		add_filter('widget_text', 'do_shortcode');
+
+	}
+	
+	public function vimeography_init()
+	{
+		if(in_array(VIMEOGRAPHY_CURRENT_PAGE, array('post.php', 'page.php', 'page-new.php', 'post-new.php'))){
+	        add_action('admin_footer',  array(&$this, 'vimeography_add_mce_popup'));
+	    }
+
+		if ( get_user_option('rich_editing') == 'true' ) {
+			add_filter( 'mce_external_plugins', array(&$this, 'vimeography_add_editor_plugin' ));
+			add_filter( 'mce_buttons', array(&$this, 'vimeography_register_editor_button') );
+		}
+
+	}
+	
+	public function vimeography_register_editor_button($buttons)
+	{
+	 	array_push( $buttons, "|", "vimeography" );
+	 	return $buttons;
+ 	}
+ 	
+	public function vimeography_add_editor_plugin( $plugin_array ) {
+		$plugin_array['vimeography'] = VIMEOGRAPHY_URL . 'media/js/mce.js';
+		return $plugin_array;
 	}
 	
 	/**
@@ -77,6 +105,19 @@ class Vimeography
 		}
 		return $links;
 	}
+	
+    /**
+     * Action target that displays the popup to insert a form to a post/page.
+     * 
+     * @access public
+     * @return void
+     */
+    public function vimeography_add_mce_popup(){
+		require_once(VIMEOGRAPHY_PATH . 'lib/admin/view/vimeography/mce.php');
+		$mustache = new Vimeography_MCE();
+		$template = $this->_load_template('vimeography/mce');
+		echo $mustache->render($template);
+    }
 
 	/**
 	 * Adds a new top level menu to the admin menu.
@@ -86,7 +127,7 @@ class Vimeography
 	 */
 	public function vimeography_add_menu()
 	{
-		add_menu_page( 'Vimeography Page Title', 'Vimeography', 'manage_options', 'vimeography-edit-galleries', '' );
+		add_menu_page( 'Vimeography Page Title', 'Vimeography', 'manage_options', 'vimeography-edit-galleries', '', VIMEOGRAPHY_URL.'media/img/vimeography-icon.png' );
 		add_submenu_page( 'vimeography-edit-galleries', 'Edit Galleries', 'Edit Galleries', 'manage_options', 'vimeography-edit-galleries', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'New Gallery', 'New Gallery', 'manage_options', 'vimeography-new-gallery', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'My Themes', 'My Themes', 'manage_options', 'vimeography-my-themes', array(&$this, 'vimeography_render_template' ));

@@ -25,6 +25,11 @@ hr { border: 0; height: 0; border-top: 1px solid rgba(0, 0, 0, 0.1); border-bott
 	padding-bottom: 10px;
 }
 
+select#vimeography-source
+{
+	width: 250px;
+}
+
 #vimeography-source-url {
 	color: #464646;
 }
@@ -43,6 +48,10 @@ hr { border: 0; height: 0; border-top: 1px solid rgba(0, 0, 0, 0.1); border-bott
 }
 
 /* Themes List */
+#vimeography-appearance-form {
+	clear: both;
+}
+
 ul#themes {
 	list-style-type: none;
 }

@@ -27,9 +27,14 @@ class Vimeography_Gallery_New extends Mustache
 		return get_admin_url().'admin.php?page=vimeography-';
 	}
 	
+	public function nonce()
+	{
+	   return wp_nonce_field('vimeography-gallery-action','vimeography-gallery-verification');
+	}
+	
 	protected function _validate_form()
 	{
-		if (isset($_POST['vimeography_basic_settings']))
+		if (isset($_POST['vimeography_basic_settings']) && check_admin_referer('vimeography-gallery-action','vimeography-gallery-verification'))
 		{
 			try
 			{				

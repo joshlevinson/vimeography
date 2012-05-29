@@ -2,6 +2,14 @@
 	<div class="icon32" id="icon-options-general"><br></div>
 	<h2 class="page-title">My Themes</h2>
 	
+	{{#messages}}
+		<div class="alert alert-{{type}} fade in">
+			<a class="close" data-dismiss="alert" href="#">&times;</a>
+			<h3 class="alert-heading">{{heading}}</h3>
+			<p>{{message}}</p>
+		</div>
+	{{/messages}}
+	
 	<ul id="themes">
 		{{#themes}}
 			<li>
@@ -23,19 +31,21 @@
 			</li>
 		{{/themes}}
 	</ul>
-	
-	<h1 style="clear:both;">Install new theme</h1>
+	<div class="alert alert-info" style="clear:both;">
+		<h3 class="alert-heading">Install new theme</h3>
+		<p>Downloaded a theme from vimeography.com? Find it below, then click install theme!</p>
 		
-    <form class="form-horizontal">
-	    <fieldset>
-		    <div class="control-group">
-			    <label class="control-label" for="theme-uploader"></label>
-			    <div class="controls">
-				    <input type="file" class="input-file input-large" id="theme-uploader" style="font-size:13px;">
-				    <p class="help-block">Supporting help text</p>
+		<form class="form-inline" style="margin: 0; padding: 10px 0;" method="post" enctype="multipart/form-data" action="">
+		    <fieldset>
+			    <div class="control-group">
+				    <div class="controls">
+					    <input name="vimeography-theme" type="file" class="input-file input-large" id="theme-uploader" style="font-size:13px;">		    		
+					    <button type="submit" class="btn">Install theme</button>
+				    </div>
 			    </div>
-		    </div>
-	    </fieldset>
-    </form>
-    
+		    </fieldset>
+			{{{nonce}}}
+	    </form>
+	</div>
+
 </div>

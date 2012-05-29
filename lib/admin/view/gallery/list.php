@@ -103,6 +103,13 @@ class Vimeography_Gallery_List extends Mustache
 		}
 	}
 	
+	/**
+	 * Creates a copy of the given gallery id in the database.
+	 * 
+	 * @access private
+	 * @param mixed $id
+	 * @return void
+	 */
 	private function _duplicate_gallery($id)
 	{
 		try
@@ -128,6 +135,13 @@ class Vimeography_Gallery_List extends Mustache
 		}
 	}
 	
+	/**
+	 * Deletes the gallery of the given ID in the database.
+	 * 
+	 * @access private
+	 * @param mixed $id
+	 * @return void
+	 */
 	private function _delete_gallery($id)
 	{
 		try
@@ -151,14 +165,16 @@ class Vimeography_Gallery_List extends Mustache
 	}
 	
 	/**
-	 * This just creates a huge list of numbered pages at the bottom…. not pretty if someone creates 100 galleries, but not sure who might actually do that.
+	 * This just creates a huge list of numbered pages at the bottom.. not
+	 * pretty if someone creates 100 galleries, but not sure who might actually
+	 * do that.
 	 * 
 	 * @access protected
 	 * @param mixed $current_page
 	 * @param mixed $number_of_pages
 	 * @return void
 	 */
-	private function _do_pagination($current_page, $number_of_pages)
+	private static function _do_pagination($current_page, $number_of_pages)
 	{
 		if ($number_of_pages <= 1) return FALSE;
 				

@@ -70,6 +70,7 @@
 							</tr>
 						</table>
 						<hr />
+						{{{basic_nonce}}}
 						<input class="btn btn-primary btn-large" type="submit" value="Save Changes">
 					</form>
 		
@@ -80,14 +81,17 @@
 						<a class="close" data-dismiss="alert" href="#">&times;</a>
 				    	<strong>Heads up!</strong> You can insert this gallery on a post or page by typing <strong>[vimeography id="{{id}}"]</strong>
 				    </div>
-					<div style="width: 940px; max-width: 100%; margin: 0 auto; clear: left;">
+					<div style="width: 1000px; max-width: 100%; margin: 0 auto; clear: left;">
 						<div style="margin: 0 auto;">
 							{{{vimeography}}}
 						</div>
 					</div>
-					
+					<hr />
 				    <form id="vimeography-appearance-form" method="post" action="{{admin_url}}edit-galleries&id={{id}}">
-						<h2>Wanna switch themes?</h2>
+				    	<div class="alert alert-info">
+				    		<h3 class="alert-heading">Switch Themes</h3>
+				    		<p>Select a theme below to change the appearance of your gallery.</p>
+				    	</div>
 						<ul id="themes">
 							{{#themes}}
 									<li>
@@ -111,6 +115,7 @@
 							{{/themes}}
 						</ul>
 						<input id="selected-vimeography-theme" type="hidden" name="vimeography_appearance_settings[theme_name]" value="{{theme}}" />
+						{{{appearance_nonce}}}
 					</form>
 			    </div> <!-- End Appearance -->
 			    				    				    
@@ -150,6 +155,7 @@
 						</table>
 						
 						<hr />
+						{{{advanced_nonce}}}
 						<input class="btn btn-primary btn-large" type="submit" value="Save Changes">
 					</form>
 								    	
