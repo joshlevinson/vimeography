@@ -1,3 +1,4 @@
 themes/*
 .DS_Store
 .htaccess
+themes/cloud/cloud.php
