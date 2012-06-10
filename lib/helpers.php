@@ -26,7 +26,7 @@ class Vimeography_Helpers
 	    /// return result
 	    return $minResult . ":" . $secResult;
 	}
-	
+		
 	/**
 	 * Truncate strings to defined limit.
 	 * Original PHP code by Chirp Internet: www.chirp.com.au 

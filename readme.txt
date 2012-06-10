@@ -1,107 +1,78 @@
-=== Plugin Name ===
-Contributors: davekiss
+=== Vimeography ===
+Contributors: iamdavekiss
 Tags: vimeo, videos, gallery
-Requires at least: 2.0.2
-Tested up to: 2.1
-Stable tag: 4.3
+Requires at least: 3.1
+Tested up to: 3.3.2
+Stable tag: 0.5
+License: MIT
 
-Vimeography is the easiest way to set up a custom Vimeo gallery on your site.
+The easiest way to create beautiful Vimeo galleries on your Wordpress blog.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Vimeography is a Wordpress plugin that allows you to create beautiful, custom video galleries in 30 seconds, tops! 
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+For more information, check out [vimeography.com](http://vimeography.com/ "vimeography.com")
 
-A few notes about the sections above:
+Some amazing features:
 
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
-
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
-
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+* Automatically add videos uploaded to a Vimeo user account, channel, album or group
+* Easily insert galleries on a page, post or template with the gallery helper or shortcode
+* Set a featured video to appear as the first video in your gallery
+* Change your gallery's appearance with custom themes
+* Built-in caching for quick page loads
+* Create unlimited galleries
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-1. Upload `plugin-name.php` to the `/wp-content/plugins/` directory
+1. Upload `vimeography.zip` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
 
 == Frequently Asked Questions ==
 
-= How do I add a gallery to my post or page? =
+= Why don’t you support YouTub/MetaHall/Flacker/PreschoolHumor? =
 
-An answer to that question.
+Like many other video professionals, we believe that Vimeo is a beautiful website complete with clean design, a supportive community and a straightforward API. This makes Vimeo a great choice for professional looking portfolios. Yes, there are other crummier sites that may also do the job, but that’s like forcing down chicken nuggets for dinner when you could be having baked scallops and a caprese appetizer. Vimeo only; enough said.
 
-= What about foo bar? =
+= How do I add my Vimeography gallery to a post or page? =
 
-Answer to foo bar dilemma.
+Easy! All you have to do is type `[vimeography id="#"]`, where `#` is replaced by the ID number of your gallery.
+
+= Where do I find the ID number of my Vimeography gallery? =
+
+Each gallery’s ID number is located next to the gallery’s title in the first column on the edit galleries page.
+
+= Can I override my Vimeography gallery settings in the shortcode? =
+
+Sure thing! You can define all of the properties found in the admin panel right in your shortcode as well. Try using one, any, or all of the following parameters:
+`[vimeography id="3" theme="thumbs" featured="28380190" source="channel" limit="60" named="staffpicks" cache="3600"]`
+
+= Can I add the Vimeography gallery to my theme’s sidebar/footer/header etc.? =
+
+Yes, but you’ll need some PHP knowledge to do it! Open the file you want to add the gallery to, and type `<?php do_shortcode('[vimeography id="#"]'); ?>`, where `#` is replaced by the ID number of your gallery.
+
+= Can I change the colors/layout of my Vimeography theme? =
+
+Not yet! All themes are set in stone, but we do have plans to add a custom css editor.
+
+= What features do you have planned in future versions of Vimeography? =
+
+- Vimeography Pro
+- Theme Customization (colors, width, thumbnail size)
+- Custom CSS Editor
+- Define width and height of container in shortcode
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the directory of the stable readme.txt, so in this case, `/tags/4.3/screenshot-1.png` (or jpg, jpeg, gif)
-2. This is the second screen shot
+1. screenshot-1.jpg description, placed in the root dir
+2. screenshot-2.jpg description
 
 == Changelog ==
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
-
 = 0.5 =
-* List versions from most recent at top to oldest at bottom.
+* First public release.
 
 == Upgrade Notice ==
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
 = 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+This is the first public release of Vimeography.

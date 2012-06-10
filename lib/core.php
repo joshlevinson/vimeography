@@ -13,7 +13,9 @@ class Vimeography_Core extends Vimeography
 	protected $_type;
 	
 	protected $_theme;
+	protected $_limit;
 	protected $_featured;
+	protected $_gallery_id;
 	
 	protected $_debug = FALSE;
 		
@@ -36,10 +38,12 @@ class Vimeography_Core extends Vimeography
 	{
 		require_once(VIMEOGRAPHY_PATH .'lib/exception.php');
 		
-		$this->_theme = $settings['theme'];
-		$this->_featured = $settings['featured'];
-		$this->_source = $settings['from'];
-		$this->_named = $settings['named'];
+		$this->_theme      = $settings['theme'];
+		$this->_featured   = $settings['featured'];
+		$this->_source     = $settings['from'];
+		$this->_named      = $settings['named'];
+		$this->_limit      = $settings['limit'];
+		$this->_gallery_id = $settings['id'];
 	}
 	
 	/**
@@ -113,38 +117,93 @@ class Vimeography_Core extends Vimeography
 			$urls[] = self::ENDPOINT.'video/'.$this->_featured.self::FORMAT;
 		
 		$result = array();
-				
+		$videos = '';
+		$main_request = TRUE;
+						
 		foreach ($urls as $url)
 		{
-			$response = wp_remote_get($url);
-			
-			if (isset($response->errors))
+			if ($main_request == TRUE)
 			{
-				foreach ($response->errors as $error)
+				$number_of_requests = ceil($this->_limit / 20);
+				
+				for ($video_page = 1; $video_page <= $number_of_requests; $video_page++)
 				{
-					throw new Vimeography_Exception('the plugin did not retrieve data from the Vimeo API! '. $error[0]);
-				}
-			}
-				
-			if (strpos($response['body'], 'not found'))
-				throw new Vimeography_Exception('the plugin could not retrieve data from the Vimeo API! '. $response['body']);
-																		
-			$result[] = $response['body'];
-						
-			if (count(json_decode($response['body'])) === 20)
-			{
-				// let's get some more stinkin' videos!
-				$second_set = wp_remote_get($url.'?page=2');
-				
-				if (! $second_set)
-					throw new Vimeography_Exception('Could not connect to the Vimeo API. Check your interwebs connection!');
+					$response = $this->_make_vimeo_request($url, $video_page);
 					
-				if (strpos($second_set['body'], 'not found'))
-					throw new Vimeography_Exception('Error retrieving data from Vimeo API! '. $response['body']);
-				
+					if ($video_page == 1)
+					{
+						// If the limit is less than the total videos, we need to remove some videos.
+						if ($this->_limit < count(json_decode($response)))
+						{
+							$video_object = json_decode($response);
+							
+							for ($video_to_delete = (count($video_object) - 1); $video_to_delete >= $this->_limit; $video_to_delete--)
+							{
+								unset($video_object[$video_to_delete]);
+							}
+							$response = json_encode($video_object);
+						}
+						
+						$videos .= $response;
+					}
+					else
+					{
+						$videos = str_replace(']', ',', $videos);
+						
+						if ($this->_limit < ($video_page * 20))
+						{
+							$video_object = json_decode($response);
+														
+							for ($video_to_delete = count($video_object) - 1; $video_to_delete >= $this->_limit - (($video_page * 20) / 2); $video_to_delete--)
+							{
+								unset($video_object[$video_to_delete]);
+							}
+							$response = json_encode($video_object);
+						}
+						
+						$response = str_replace('[', ' ', $response);
+						$videos = $videos.$response;
+					}
+					
+					// This stops the next request from occuring if the total video count on the Vimeo source is less than what the user specified that they would like to see
+					if (count(json_decode($videos)) < 20) break;
+					
+				}
+				$main_request = FALSE;
+				$result[] = $videos;
 			}
+			else
+			{
+				// Remove the last video in the array to make room for the featured video
+				$video_object = json_decode($result[0]);
+				unset($video_object[count($video_object) - 1]);
+				$result[0] = json_encode($video_object);
+				
+				// Make featured vid request here.
+				$featured_video = $this->_make_vimeo_request($url, 1);
+				$result[] = $featured_video;
+			}
+		
 		}
 		return $result;
+	}
+	
+	private function _make_vimeo_request($url, $page)
+	{
+		$response = wp_remote_get($url.'?page='.$page);
+		
+		if (isset($response->errors))
+		{
+			foreach ($response->errors as $error)
+			{
+				throw new Vimeography_Exception('the plugin did not retrieve data from the Vimeo API! '. $error[0]);
+			}
+		}
+			
+		if (strpos($response['body'], 'not found'))
+			throw new Vimeography_Exception('the plugin could not retrieve data from the Vimeo API! '. $response['body']);
+																	
+		return $response['body'];
 	}
 		
 	public function render($data)
@@ -188,6 +247,7 @@ class Vimeography_Core extends Vimeography
 			}
 			
 			$mustache->featured = $featured;
+			$mustache->gallery_id = $this->_gallery_id;
 							
 			return $mustache->render($theme);
 		}

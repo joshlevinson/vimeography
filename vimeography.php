@@ -3,7 +3,7 @@
 	Plugin Name: Vimeography
 	Plugin URI: http://vimeography.com
 	Description: Vimeography is the easiest way to set up a custom Vimeo gallery on your site.
-	Version: 0.3
+	Version: 0.4
 	Author: Dave Kiss
 	Author URI: http://davekiss.com
 	License: MIT
@@ -18,7 +18,7 @@ global $wpdb;
 define( 'VIMEOGRAPHY_URL', plugin_dir_url(__FILE__) );
 define( 'VIMEOGRAPHY_PATH', plugin_dir_path(__FILE__) );
 define( 'VIMEOGRAPHY_BASENAME', plugin_basename( __FILE__ ) );
-define( 'VIMEOGRAPHY_VERSION', '0.2');
+define( 'VIMEOGRAPHY_VERSION', '0.4');
 define( 'VIMEOGRAPHY_GALLERY_TABLE', $wpdb->prefix . "vimeography_gallery");
 define( 'VIMEOGRAPHY_GALLERY_META_TABLE', $wpdb->prefix . "vimeography_gallery_meta");
 define( 'VIMEOGRAPHY_CURRENT_PAGE', basename($_SERVER['PHP_SELF']));
@@ -30,20 +30,20 @@ class Vimeography
 {								
 	public function __construct()
 	{
-		add_action ('init', array(&$this, 'vimeography_init'));
+		add_action( 'init', array(&$this, 'vimeography_init') );
 		add_action( 'admin_init', array(&$this, 'vimeography_requires_wordpress_version') );
-		add_action( 'admin_menu', array(&$this, 'vimeography_add_menu'));
+		add_action( 'plugins_loaded', array(&$this, 'vimeography_update_db_check') );
+		add_action( 'admin_menu', array(&$this, 'vimeography_add_menu') );
 		
-		register_activation_hook(VIMEOGRAPHY_BASENAME, array(&$this, 'vimeography_create_tables'));
+		register_activation_hook( VIMEOGRAPHY_BASENAME, array(&$this, 'vimeography_create_tables') );
 		
 		add_filter( 'plugin_action_links', array(&$this, 'vimeography_filter_plugin_actions'), 10, 2 );
-		add_shortcode('vimeography', array(&$this, 'vimeography_shortcode'));
+		add_shortcode( 'vimeography', array(&$this, 'vimeography_shortcode') );
 				
 		// Add shortcode support for widgets  
-		add_filter('widget_text', 'do_shortcode');
-
+		add_filter( 'widget_text', 'do_shortcode' );
 	}
-	
+		
 	public function vimeography_init()
 	{
 		if(in_array(VIMEOGRAPHY_CURRENT_PAGE, array('post.php', 'page.php', 'page-new.php', 'post-new.php'))){
@@ -86,6 +86,20 @@ class Vimeography
 			}
 		}
 	}
+	
+	/**
+	 * Check if the Vimeography database needs updated based on the db version.
+	 * 
+	 * @access public
+	 * @return void
+	 */
+	public function vimeography_update_db_check()
+	{
+		if (get_option('vimeography_db_version') != VIMEOGRAPHY_VERSION)
+			$this->vimeography_create_tables();
+			
+		update_option('vimeography_db_version', VIMEOGRAPHY_VERSION);
+	}
 				
 	/**
 	 * Add Settings link to "installed plugins" admin page.
@@ -127,13 +141,18 @@ class Vimeography
 	 */
 	public function vimeography_add_menu()
 	{
+		
+		global $submenu;
+		
 		add_menu_page( 'Vimeography Page Title', 'Vimeography', 'manage_options', 'vimeography-edit-galleries', '', VIMEOGRAPHY_URL.'media/img/vimeography-icon.png' );
 		add_submenu_page( 'vimeography-edit-galleries', 'Edit Galleries', 'Edit Galleries', 'manage_options', 'vimeography-edit-galleries', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'New Gallery', 'New Gallery', 'manage_options', 'vimeography-new-gallery', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'My Themes', 'My Themes', 'manage_options', 'vimeography-my-themes', array(&$this, 'vimeography_render_template' ));
-		add_submenu_page( 'vimeography-edit-galleries', 'Buy Themes', 'Buy Themes', 'manage_options', 'vimeography-buy-themes', array(&$this, 'vimeography_render_template' ));
+		$submenu['vimeography-edit-galleries'][500] = array( 'Buy Themes', 'manage_options' , 'http://vimeography.com/themes' );
+		//add_submenu_page( 'vimeography-edit-galleries', 'Buy Themes', 'Buy Themes', 'manage_options', 'vimeography-buy-themes', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'Vimeography Pro', 'Vimeography Pro', 'manage_options', 'vimeography-pro', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'Help', 'Help', 'manage_options', 'vimeography-help', array(&$this, 'vimeography_render_template' ));
+
 	}
 	
 	public function vimeography_render_template()
@@ -183,11 +202,6 @@ class Vimeography
 				$mustache = new Vimeography_Theme_List();
 				$template = $this->_load_template('theme/list');
 				break;
-			case 'vimeography_page_vimeography-buy-themes':
-				require_once(VIMEOGRAPHY_PATH . 'lib/admin/view/theme/buy.php');
-				$mustache = new Vimeography_Theme_Buy();
-				$template = $this->_load_template('theme/buy');
-				break;
 			case 'vimeography_page_vimeography-pro':
 				require_once(VIMEOGRAPHY_PATH . 'lib/admin/view/vimeography/pro.php');
 				$mustache = new Vimeography_Pro();
@@ -236,9 +250,10 @@ class Vimeography
 		add_option('vimeography_default_settings', array(
 			'source_type' => 'channel',
 			'source_name' => 'hd',
+			'video_count' => 20,
 			'featured_video' => '',
 			'cache_timeout' => 3600,
-			'theme_name' => 'journey',
+			'theme_name' => 'default',
 		));
 			      
 		$sql = 'CREATE TABLE '.VIMEOGRAPHY_GALLERY_TABLE.' (
@@ -246,17 +261,18 @@ class Vimeography
 		title varchar(150) NOT NULL,
 		date_created datetime NOT NULL,
 		is_active tinyint(1) NOT NULL,
-		PRIMARY  KEY  (id)
+		PRIMARY KEY (id)
 		);
 		CREATE TABLE '.VIMEOGRAPHY_GALLERY_META_TABLE.' (
 		id mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
 		gallery_id mediumint(8) unsigned NOT NULL,
 		source_type varchar(50) NOT NULL,
 		source_name varchar(50) NOT NULL,
+		video_count mediumint(7) NOT NULL,
 		featured_video int(9) unsigned DEFAULT NULL,
 		cache_timeout mediumint(7) NOT NULL,
 		theme_name varchar(50) NOT NULL,
-		PRIMARY  KEY  (id)
+		PRIMARY KEY (id)
 		);
 		';
 			
@@ -287,6 +303,7 @@ class Vimeography
 			'featured' => $default_settings['featured_video'],
 			'from' => $default_settings['source_type'],
 			'named' => $default_settings['source_name'],
+			'limit' => $default_settings['video_count'],
 			'cache' => $default_settings['cache_timeout'],
 			'width' => '',
 			'height' => '',
@@ -302,6 +319,7 @@ class Vimeography
 				$settings['featured'] = $gallery_info[0]->featured_video;
 				$settings['from'] = $gallery_info[0]->source_type;
 				$settings['named'] = $gallery_info[0]->source_name;
+				$settings['limit'] = $gallery_info[0]->video_count;
 				$settings['cache'] = $gallery_info[0]->cache_timeout;
 			}
 		}

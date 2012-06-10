@@ -21,7 +21,7 @@ class Vimeography_Gallery_Edit extends Mustache
 		$this->gallery = $wpdb->get_results('SELECT * from '.VIMEOGRAPHY_GALLERY_META_TABLE.' AS meta JOIN '.VIMEOGRAPHY_GALLERY_TABLE.' AS gallery ON meta.gallery_id = gallery.id WHERE meta.gallery_id = '.$gallery_id.' LIMIT 1;');
 		if (! $this->gallery)
 			$this->messages[] = array('type' => 'error', 'heading' => 'Uh oh.', 'message' => 'That gallery no longer exists. It\'s gone. Kaput!');
-			
+					
 		if (isset($_GET['created']) && $_GET['created'] == 1)
 		{
 			$this->tab_to_show = 'appearance';
@@ -263,20 +263,22 @@ class Vimeography_Gallery_Edit extends Mustache
 				global $wpdb;
 				$settings['cache_timeout'] = $wpdb->escape(wp_filter_nohtml_kses($input['vimeography_advanced_settings']['cache_timeout']));
 				$settings['featured_video'] = $wpdb->escape(wp_filter_nohtml_kses($input['vimeography_advanced_settings']['featured_video']));
-									
-				$result = $wpdb->update( VIMEOGRAPHY_GALLERY_META_TABLE, array('cache_timeout' => $settings['cache_timeout'], 'featured_video' => $settings['featured_video']), array( 'gallery_id' => $id ) );
+				
+				$settings['video_count'] = intval($input['vimeography_advanced_settings']['video_count']) <= 60 ? $input['vimeography_advanced_settings']['video_count'] : 60;
+													
+				$result = $wpdb->update( VIMEOGRAPHY_GALLERY_META_TABLE, array('cache_timeout' => $settings['cache_timeout'], 'featured_video' => $settings['featured_video'], 'video_count' => $settings['video_count']), array( 'gallery_id' => $id ) );
 				
 				if ($result === FALSE)
 					throw new Exception('Your advanced settings could not be updated.');
 					
 				$this->delete_vimeography_cache($id);
 				$this->messages[] = array('type' => 'success', 'heading' => __('Settings updated.'), 'message' => __('Nice work. You are pretty good at this.'));
-	        	$this->tab_to_show = 'advanced-settings';
 			}
 			catch (Exception $e)
 			{
 				$this->messages[] = array('type' => 'error', 'heading' => 'Ruh roh.', 'message' => $e->getMessage());
 			}
+	        $this->tab_to_show = 'advanced-settings';
 		}
 	}
 }
