@@ -174,10 +174,10 @@ class Vimeography_Core extends Vimeography
 			}
 			else
 			{
-				// Remove the last video in the array to make room for the featured video
-				$video_object = json_decode($result[0]);
+				// Remove the last video in the array to make room for the featured video . NOTE: Don't want to do this when the featured video exists in the video_object
+				/*$video_object = json_decode($result[0]);
 				unset($video_object[count($video_object) - 1]);
-				$result[0] = json_encode($video_object);
+				$result[0] = json_encode($video_object);*/
 				
 				// Make featured vid request here.
 				$featured_video = $this->_make_vimeo_request($url, 1);
@@ -213,7 +213,7 @@ class Vimeography_Core extends Vimeography
 			if (! isset($this->_theme))
 				throw new Vimeography_Exception('You must specify a theme in either the admin panel or the shortcode.');
 				
-			if (!@require_once(VIMEOGRAPHY_PATH .'themes/'. $this->_theme . '/'.$this->_theme.'.php'))
+			if (!@require_once(VIMEOGRAPHY_THEME_PATH . $this->_theme . '/'.$this->_theme.'.php'))
 				throw new Vimeography_Exception('The "'.$this->_theme.'" theme does not exist or is improperly structured.');	
 							
 			$class = 'Vimeography_Themes_'.ucfirst($this->_theme);
@@ -225,7 +225,7 @@ class Vimeography_Core extends Vimeography
 			$theme = $this->_load_theme($this->_theme);
 						
 			$mustache->data = json_decode($data[0]);
-
+			
 			if (isset($data[1]))
 			{
 				// featured video option is set
@@ -245,7 +245,7 @@ class Vimeography_Core extends Vimeography
 				$data = json_decode($data[0]);
 				$featured = $data[0];
 			}
-			
+						
 			$mustache->featured = $featured;
 			$mustache->gallery_id = $this->_gallery_id;
 							
@@ -263,7 +263,7 @@ class Vimeography_Core extends Vimeography
 	
 	protected function _load_theme($name)
 	{
-		$path = VIMEOGRAPHY_PATH . '/themes/' . $name . '/videos.mustache';
+		$path = VIMEOGRAPHY_THEME_PATH . $name . '/videos.mustache';
 		if (! $result = @file_get_contents($path))
 			throw new Vimeography_Exception('The gallery template for the "'.$name.'" theme cannot be found.');
 		return $result;

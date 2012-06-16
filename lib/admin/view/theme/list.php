@@ -6,8 +6,6 @@ class Vimeography_Theme_List extends Mustache
     
 	public function __construct()
 	{
-		//wp_register_style('cloud.css', plugins_url('media/css/cloud.css', __FILE__ ));
-		//wp_enqueue_style('cloud.css');
 		if (isset($_POST))
 			$this->_validate_form();
 	}
@@ -20,9 +18,9 @@ class Vimeography_Theme_List extends Mustache
 		
 		foreach ($theme_data as $theme_info)
 		{
-			$local_path = VIMEOGRAPHY_PATH . 'themes/' . $theme_info['name'] . '/' . $theme_info['name'] .'.jpg';
+			$local_path = VIMEOGRAPHY_THEME_PATH . $theme_info['name'] . '/' . $theme_info['name'] .'.jpg';
 			
-			$theme_info['thumbnail'] = file_exists($local_path) ? VIMEOGRAPHY_URL . 'themes/' . $theme_info['name'] . '/' . $theme_info['name'] .'.jpg' : 'http://placekitten.com/g/200/150';
+			$theme_info['thumbnail'] = file_exists($local_path) ? VIMEOGRAPHY_THEME_URL . $theme_info['name'] . '/' . $theme_info['name'] .'.jpg' : 'http://placekitten.com/g/200/150';
 			
 			$themes[] = $theme_info;
 		}
@@ -64,7 +62,7 @@ class Vimeography_Theme_List extends Mustache
 			}
 			else
 			{
-				$result = unzip_file($_FILES['vimeography-theme']['tmp_name'], VIMEOGRAPHY_PATH.'themes/');
+				$result = unzip_file($_FILES['vimeography-theme']['tmp_name'], VIMEOGRAPHY_THEME_PATH);
 				
 				if ($result != 1)
 				{
@@ -89,7 +87,7 @@ class Vimeography_Theme_List extends Mustache
 	private function _get_vimeography_themes() {
 		$themes = array();
 		
-		$directories = glob(VIMEOGRAPHY_PATH . 'themes/*' , GLOB_ONLYDIR);
+		$directories = glob(VIMEOGRAPHY_THEME_PATH.'*' , GLOB_ONLYDIR);
 		
 		foreach ($directories as $dir)
 		{
@@ -111,12 +109,12 @@ class Vimeography_Theme_List extends Mustache
 	private static function _get_theme_data($plugin_file)
 	{
 		$default_headers = array(
-			'name' => 'Theme Name',
-			'theme-uri' => 'Theme URI',
-			'version' => 'Version',
+			'name'        => 'Theme Name',
+			'theme-uri'   => 'Theme URI',
+			'version'     => 'Version',
 			'description' => 'Description',
-			'author' => 'Author',
-			'author-uri' => 'Author URI',
+			'author'      => 'Author',
+			'author-uri'  => 'Author URI',
 		);
 		
 		return get_file_data( $plugin_file, $default_headers );

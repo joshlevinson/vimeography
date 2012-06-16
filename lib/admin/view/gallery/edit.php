@@ -17,7 +17,9 @@ class Vimeography_Gallery_Edit extends Mustache
 
 		global $wpdb;
 		
-		$gallery_id = $wpdb->escape(intval($_GET['id']));
+		if (isset($_GET['id']))
+			$gallery_id = $wpdb->escape(intval($_GET['id']));
+			
 		$this->gallery = $wpdb->get_results('SELECT * from '.VIMEOGRAPHY_GALLERY_META_TABLE.' AS meta JOIN '.VIMEOGRAPHY_GALLERY_TABLE.' AS gallery ON meta.gallery_id = gallery.id WHERE meta.gallery_id = '.$gallery_id.' LIMIT 1;');
 		if (! $this->gallery)
 			$this->messages[] = array('type' => 'error', 'heading' => 'Uh oh.', 'message' => 'That gallery no longer exists. It\'s gone. Kaput!');
@@ -26,8 +28,7 @@ class Vimeography_Gallery_Edit extends Mustache
 		{
 			$this->tab_to_show = 'appearance';
 			$this->messages[] = array('type' => 'success', 'heading' => 'Gallery created.', 'message' => 'Welp, that was easy.');
-		}
-		
+		}		
 	}
 	
 	/**
@@ -50,7 +51,8 @@ class Vimeography_Gallery_Edit extends Mustache
 	 */
 	public function vimeography()
 	{
-		return do_shortcode( "[vimeography id='".$this->gallery[0]->id."']" );
+		if (function_exists('do_shortcode'))
+			return do_shortcode( "[vimeography id='".$this->gallery[0]->id."']" );
 	}
 	
 	/**
@@ -110,11 +112,11 @@ class Vimeography_Gallery_Edit extends Mustache
 		foreach ($theme_data as $theme_info)
 		{
 			
-			$local_path = VIMEOGRAPHY_PATH . 'themes/' . $theme_info['name'] . '/' . $theme_info['name'] .'.jpg';
+			$local_path = VIMEOGRAPHY_THEME_PATH . $theme_info['name'] . '/' . $theme_info['name'] .'.jpg';
 			
-			$theme_info['thumbnail'] = file_exists($local_path) ? VIMEOGRAPHY_URL . 'themes/' . $theme_info['name'] . '/' . $theme_info['name'] .'.jpg' : 'http://placekitten.com/g/200/150';
-			$theme_info['active'] = $theme_info['name'] === $this->gallery[0]->theme_name ? TRUE : FALSE;
-						
+			$theme_info['thumbnail'] = file_exists($local_path) ? VIMEOGRAPHY_THEME_URL . $theme_info['name'] . '/' . $theme_info['name'] .'.jpg' : 'http://placekitten.com/g/200/150';
+			$theme_info['active'] = strtolower($theme_info['name']) == $this->gallery[0]->theme_name ? TRUE : FALSE;
+									
 			$themes[] = $theme_info;
 		}
 				
@@ -132,7 +134,7 @@ class Vimeography_Gallery_Edit extends Mustache
 	private function _get_vimeography_themes() {
 		$themes = array();
 		
-		$directories = glob(VIMEOGRAPHY_PATH . 'themes/*' , GLOB_ONLYDIR);
+		$directories = glob(VIMEOGRAPHY_THEME_PATH.'*' , GLOB_ONLYDIR);
 		
 		foreach ($directories as $dir)
 		{

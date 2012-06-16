@@ -3,7 +3,7 @@
 	Plugin Name: Vimeography
 	Plugin URI: http://vimeography.com
 	Description: Vimeography is the easiest way to set up a custom Vimeo gallery on your site.
-	Version: 0.4
+	Version: 0.5.1
 	Author: Dave Kiss
 	Author URI: http://davekiss.com
 	License: MIT
@@ -13,16 +13,18 @@ if (!function_exists('json_decode'))
 	wp_die('Vimeography needs the JSON PHP extension.');
 	
 global $wpdb;
+$wp_upload_dir = wp_upload_dir();
 
 // Define constants
 define( 'VIMEOGRAPHY_URL', plugin_dir_url(__FILE__) );
 define( 'VIMEOGRAPHY_PATH', plugin_dir_path(__FILE__) );
+define( 'VIMEOGRAPHY_THEME_URL', $wp_upload_dir['baseurl'].'/vimeography-themes/' );
+define( 'VIMEOGRAPHY_THEME_PATH', $wp_upload_dir['basedir'].'/vimeography-themes/' );
 define( 'VIMEOGRAPHY_BASENAME', plugin_basename( __FILE__ ) );
-define( 'VIMEOGRAPHY_VERSION', '0.4');
+define( 'VIMEOGRAPHY_VERSION', '0.5');
 define( 'VIMEOGRAPHY_GALLERY_TABLE', $wpdb->prefix . "vimeography_gallery");
 define( 'VIMEOGRAPHY_GALLERY_META_TABLE', $wpdb->prefix . "vimeography_gallery_meta");
 define( 'VIMEOGRAPHY_CURRENT_PAGE', basename($_SERVER['PHP_SELF']));
-
 
 require_once(VIMEOGRAPHY_PATH . '/vendor/mustache/Mustache.php');
 		
@@ -149,7 +151,6 @@ class Vimeography
 		add_submenu_page( 'vimeography-edit-galleries', 'New Gallery', 'New Gallery', 'manage_options', 'vimeography-new-gallery', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'My Themes', 'My Themes', 'manage_options', 'vimeography-my-themes', array(&$this, 'vimeography_render_template' ));
 		$submenu['vimeography-edit-galleries'][500] = array( 'Buy Themes', 'manage_options' , 'http://vimeography.com/themes' );
-		//add_submenu_page( 'vimeography-edit-galleries', 'Buy Themes', 'Buy Themes', 'manage_options', 'vimeography-buy-themes', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'Vimeography Pro', 'Vimeography Pro', 'manage_options', 'vimeography-pro', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'Help', 'Help', 'manage_options', 'vimeography-help', array(&$this, 'vimeography_render_template' ));
 
@@ -253,7 +254,7 @@ class Vimeography
 			'video_count' => 20,
 			'featured_video' => '',
 			'cache_timeout' => 3600,
-			'theme_name' => 'default',
+			'theme_name' => 'bugsauce',
 		));
 			      
 		$sql = 'CREATE TABLE '.VIMEOGRAPHY_GALLERY_TABLE.' (
@@ -279,6 +280,10 @@ class Vimeography
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 		dbDelta($sql);
 		add_option("vimeography_db_version", VIMEOGRAPHY_VERSION);
+		
+		// Let's also move the vimeography_themes folder to wp-content/uploads			    	    
+		$this->rcopy(VIMEOGRAPHY_PATH . 'vimeography-themes/' , VIMEOGRAPHY_THEME_PATH );
+	    
 	}
 																   	
 	/**
@@ -315,12 +320,12 @@ class Vimeography
 			$gallery_info = $wpdb->get_results('SELECT * from '.VIMEOGRAPHY_GALLERY_META_TABLE.' AS meta JOIN '.VIMEOGRAPHY_GALLERY_TABLE.' AS gallery ON meta.gallery_id = gallery.id WHERE meta.gallery_id = '.$settings['id'].' LIMIT 1;');
 			if ($gallery_info)
 			{
-				$settings['theme'] = $gallery_info[0]->theme_name;
+				$settings['theme']    = $gallery_info[0]->theme_name;
 				$settings['featured'] = $gallery_info[0]->featured_video;
-				$settings['from'] = $gallery_info[0]->source_type;
-				$settings['named'] = $gallery_info[0]->source_name;
-				$settings['limit'] = $gallery_info[0]->video_count;
-				$settings['cache'] = $gallery_info[0]->cache_timeout;
+				$settings['from']     = $gallery_info[0]->source_type;
+				$settings['named']    = $gallery_info[0]->source_name;
+				$settings['limit']    = $gallery_info[0]->video_count;
+				$settings['cache']    = $gallery_info[0]->cache_timeout;
 			}
 		}
 		
@@ -384,6 +389,33 @@ class Vimeography
     {
     	return delete_transient('vimeography_cache_'.$id);
     }
+    
+    // Function to remove folders and files 
+    private function rrmdir($dir) {
+        if (is_dir($dir)) {
+            $files = scandir($dir);
+            foreach ($files as $file)
+                if ($file != "." && $file != "..") $this->rrmdir("$dir/$file");
+            rmdir($dir);
+        }
+        else if (file_exists($dir)) unlink($dir);
+    }
+
+    // Function to Copy folders and files       
+    private function rcopy($source, $dst) {
+        if (file_exists ( $dst ))
+            $this->rrmdir ( $dst );
+        if (is_dir ( $source )) 
+        {
+            mkdir ( $dst );
+            $files = scandir ( $source );
+            foreach ( $files as $file )
+                if ($file != "." && $file != "..")
+                    $this->rcopy ( $source.'/'.$file, $dst.'/'.$file );
+        } else if (file_exists ( $source ))
+            copy ( $source, $dst );
+            $this->rrmdir($source);
+    }  
 	
 }
 
