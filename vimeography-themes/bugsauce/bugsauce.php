@@ -2,7 +2,7 @@
 /*
 Theme Name: Bugsauce
 Theme URI: vimeography.com/themes/bugsauce
-Version: .1
+Version: .2
 Description: is the base theme that comes prepackaged with Vimeography.
 Author: Dave Kiss
 Author URI: vimeography.com
@@ -25,7 +25,7 @@ class Vimeography_Themes_Bugsauce extends Mustache
 	{
 		// First things first. jQuery.
 		wp_deregister_script('jquery');
-		wp_register_script('jquery', ("http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"), false, '1.7.1');
+		wp_register_script('jquery', ("http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"), false, '1.7.2');
 		wp_enqueue_script('jquery');  
   
 		wp_register_script('froogaloop', 'http://a.vimeocdn.com/js/froogaloop2.min.js');

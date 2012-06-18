@@ -1,19 +1,15 @@
 <div id="vimeography-gallery-{{gallery_id}}" class="vimeography-bugsauce">
 
-	<div class="vimeography-main flexslider">
-		<ul class="slides">
-			{{#info}}
-				<li>
-				<iframe id="vimeography-embed-{{gallery_id}}" src="http://player.vimeo.com/video/{{id}}?title=0&byline=0&portrait=0&api=1&player_id=vimeography-embed-{{gallery-id}}" width="820" height="461" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-				</li>
-			{{/info}}
-		</ul>
+	<div class="vimeography-main">
+		{{#featured}}
+			<iframe id="vimeography-embed-{{gallery_id}}" src="http://player.vimeo.com/video/{{id}}?title=0&byline=0&portrait=0&api=1&player_id=vimeography-embed-{{gallery_id}}" width="820" height="461" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+		{{/featured}}
 	</div>
-	
+
 	<div class="vimeography-thumbnails flexslider">
 		<ul class="slides">
 			{{#info}}
-				<li><img src="{{thumbnail_large}}" alt="{{title}}" width="184" height="103" /></li>
+				<li><img src="{{thumbnail_large}}" alt="{{title}}" data-id="{{id}}" width="186" height="105" /></li>
 			{{/info}}
 		</ul>
 	</div>
