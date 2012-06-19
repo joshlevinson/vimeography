@@ -1,7 +1,7 @@
 === Vimeography ===
 Contributors: iamdavekiss
 Tags: vimeo, videos, gallery
-Requires at least: 3.1
+Requires at least: 3.3
 Tested up to: 3.4
 Stable tag: 0.5.2
 License: MIT
