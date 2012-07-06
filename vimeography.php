@@ -384,8 +384,6 @@ class Vimeography
 			'source'   => $gallery_settings['source'],
 			'limit'    => $gallery_settings['limit'],
 			'cache'    => $gallery_settings['cache'],
-			'width'    => '',
-			'height'   => '',
 		), $atts );
 		
 		try
@@ -393,12 +391,44 @@ class Vimeography
 			require_once(VIMEOGRAPHY_PATH . 'lib/core.php');
 		    $vimeography = Vimeography_Core::factory('videos', $settings);
 		    
-			// if cache is set, render it. otherwise, get the json, set the cache, and render it		
-			if (($vimeography_data = $this->get_vimeography_cache($settings['id'])) === FALSE)
+		    $settings_check = $settings;
+		    $unused_id = array_shift($settings_check);
+		    
+			// If the shortcode settings are equal to the DB settings, the
+			// gallery isn't being overloaded by shortcode, so proceed to render
+			// the standard cache.
+			
+			if ($settings_check == $gallery_settings)
 			{
-		    	// cache not set, let's do a new request to the vimeo API and cache it
-		        $vimeography_data = $vimeography->get('videos');
-		        $transient = $this->set_vimeography_cache($settings['id'], $vimeography_data, $settings['cache']);
+				// if cache is set, render it. otherwise, get the json, set the
+				// cache, and render it
+				
+				if (($vimeography_data = $this->get_vimeography_cache($settings['id'])) === FALSE)
+				{
+			    	// cache not set, let's do a new request to the vimeo API
+			    	// and cache it
+			        $vimeography_data = $vimeography->get('videos');
+			        $transient = $this->set_vimeography_cache($settings['id'], $vimeography_data, $settings['cache']);
+				}
+			}
+			// Otherwise, let's see if a cache exists for these particular
+			// shortcode settings, and if not, we'll create one using an
+			// alternate cache name generated using an md5 of the serialized
+			// shortcode combines with the gallery id.
+			
+			else
+			{
+				$cache_hash = $settings['id'].'_'.md5(serialize($gallery_settings));
+				
+				// if cache is set, render it. otherwise, get the json, set the
+				// cache, and render it
+				if (($vimeography_data = $this->get_vimeography_cache($cache_hash)) === FALSE)
+				{
+			    	// cache not set, let's do a new request to the vimeo API
+			    	// and cache it
+			        $vimeography_data = $vimeography->get('videos');
+			        $transient = $this->set_vimeography_cache($cache_hash, $vimeography_data, $settings['cache']);
+				}
 			}
 			return $vimeography->render($vimeography_data);
 		}
