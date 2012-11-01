@@ -26,13 +26,15 @@
     
 <script charset="utf-8" type="text/javascript">
   (function($){
-  	$(document).ready(function(){
+  	$(window).load(function(){
   	      
       // credit: http://stackoverflow.com/questions/638948/background-color-hex-to-javascript-variable-jquery
       function rgb_to_hex(rgbString)
       {
         var parts = rgbString.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
         // parts now should be ["rgb(0, 70, 255", "0", "70", "255"]
+        
+        console.log(parts);
         
         if (parts == null) {return rgbString;}
         
@@ -77,10 +79,17 @@
         
       });
       
-      // set the value of the color picker field to the current value of the element
-      var current_element_val = rgb_to_hex($('{{#settings}}{{target}}{{/settings}}').css('{{#settings}}{{attribute}}{{/settings}}'));
-      $('#{{#settings}}{{id}}{{/settings}}').val(current_element_val);
-      $('.{{#settings}}{{id}}{{/settings}}.colorSelector div').css('backgroundColor', $('#{{#settings}}{{id}}{{/settings}}').val());
+      // set the value of the color picker field to the current value of the element      
+      // wait a few seconds to make sure everything is loaded before setting the colorpicker values
+      setTimeout(function() {
+        var target_attr = '{{#settings}}{{attribute}}{{/settings}}';
+        // convert the borderColor property to a jQuery-readable css attribute without actually affecting the saved property
+        if (target_attr == 'borderColor') {target_attr = 'border-left-color'}
+        var current_element_val = rgb_to_hex($('{{#settings}}{{target}}{{/settings}}').css(target_attr));
+        $('#{{#settings}}{{id}}{{/settings}}').val(current_element_val);
+        $('.{{#settings}}{{id}}{{/settings}}.colorSelector div').css('backgroundColor', $('#{{#settings}}{{id}}{{/settings}}').val());
+      }, 2000);
+                 
   
   	});
   })(jQuery)

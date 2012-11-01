@@ -84,10 +84,7 @@ class Vimeography_Gallery_Edit extends Mustache
   * @return void
   */
   public function vimeography_theme_settings()
-  {
-    // Check if the active theme has a settings file.
-    $settings_file = VIMEOGRAPHY_THEME_PATH . $this->gallery[0]->theme_name . '/settings.php';
-    
+  {    
     if ($this->theme_supports_settings == TRUE)
     {
       // If so, include it here and loop through each setting.
@@ -311,14 +308,16 @@ class Vimeography_Gallery_Edit extends Mustache
 		{
 			try
 			{
-				global $wpdb;
-				$settings['theme_name'] = strtolower($wpdb->escape(wp_filter_nohtml_kses($input['vimeography_appearance_settings']['theme_name'])));
-						
-				$result = $wpdb->update( VIMEOGRAPHY_GALLERY_META_TABLE, array('theme_name' => $settings['theme_name']), array( 'gallery_id' => $id ) );
-				if ($result === FALSE)
-					throw new Exception('Your theme could not be updated.');
-				
-	        	$this->messages[] = array('type' => 'success', 'heading' => __('Theme updated.'), 'message' => __('You are now using the "') . $settings['theme_name'] . __('" theme.'));
+        global $wpdb;
+        $settings['theme_name'] = strtolower($wpdb->escape(wp_filter_nohtml_kses($input['vimeography_appearance_settings']['theme_name'])));
+        
+        $result = $wpdb->update( VIMEOGRAPHY_GALLERY_META_TABLE, array('theme_name' => $settings['theme_name']), array( 'gallery_id' => $id ) );
+        if ($result === FALSE)
+          throw new Exception('Your theme could not be updated.');
+        
+        $transient = delete_transient('vimeography_theme_settings_'.$id);
+        
+        $this->messages[] = array('type' => 'success', 'heading' => __('Theme updated.'), 'message' => __('You are now using the "') . $settings['theme_name'] . __('" theme.'));
 			}
 			catch (Exception $e)
 			{
