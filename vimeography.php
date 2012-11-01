@@ -336,6 +336,12 @@ class Vimeography
 
 	}
 	
+	/**
+	 * Renders the admin template for the current page.
+	 * 
+	 * @access public
+	 * @return void
+	 */
 	public function vimeography_render_template()
 	{
 		if ( !current_user_can( 'manage_options' ) )  {
@@ -401,6 +407,13 @@ class Vimeography
 		echo $mustache->render($template);
 	}
 	
+	/**
+	 * Returns the file contents for the provided mustache template. Common Function.
+	 * 
+	 * @access protected
+	 * @param mixed $name
+	 * @return void
+	 */
 	protected function _load_template($name)
 	{
 		$path = VIMEOGRAPHY_PATH . 'lib/admin/templates/' . $name .'.mustache';
