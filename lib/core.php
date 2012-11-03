@@ -1,9 +1,5 @@
 <?php
 
-// Require Mustache.php
-if (! class_exists('Mustache'))
-	require_once(VIMEOGRAPHY_PATH . '/vendor/mustache/Mustache.php');
-
 class Vimeography_Core extends Vimeography
 {
 	const ENDPOINT = 'http://vimeo.com/api/v2/';
@@ -36,9 +32,7 @@ class Vimeography_Core extends Vimeography
 	}
 			
 	public function __construct($settings)
-	{
-		require_once(VIMEOGRAPHY_PATH .'lib/exception.php');
-		
+	{		
 		$this->_theme      = $settings['theme'];
 		$this->_featured   = $settings['featured'];
 		$this->_source     = $settings['source'];

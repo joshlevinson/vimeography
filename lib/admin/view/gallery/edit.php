@@ -1,10 +1,9 @@
 <?php
 
-class Vimeography_Gallery_Edit extends Mustache
-{
-	public $messages = array();
+class Vimeography_Gallery_Edit extends Vimeography_Base
+{	
+	protected $_gallery;
 	
-	public $gallery;
 	public $videos;
 	public $theme_supports_settings = FALSE;
 	
@@ -16,6 +15,60 @@ class Vimeography_Gallery_Edit extends Mustache
 		if (isset($_POST))
 			$this->_validate_form();
 			
+		// Without the @, this generates warnings?
+		// Notice: Undefined offset: 0 in /Users/davekiss/Sites/vimeography.com/wp-includes/plugin.php on line 762/780
+		@add_action('wp_enqueue_scripts', $this->_load_scripts());
+					
+		global $wpdb;
+		
+		if (isset($_GET['id']))
+		{
+			$gallery_id = intval($_GET['id']);
+			
+			if (isset($_GET['refresh']) AND $_GET['refresh'] == 1)
+			{
+				$this->delete_vimeography_cache($gallery_id);
+				$this->messages[] = array('type' => 'success', 'heading' => 'So fresh.', 'message' => __('Your videos have been refreshed.') );
+			}
+			
+			if (isset($_GET['delete-theme-settings']) AND $_GET['delete-theme-settings'] == 1)
+			{
+				$transient = delete_transient('vimeography_theme_settings_'.$gallery_id);
+				$this->messages[] = array('type' => 'success', 'heading' => __('Theme settings cleared.'), 'message' => __('Your gallery appearance has been reset.'));
+			}
+		}
+				
+		$this->_gallery = $wpdb->get_results('SELECT * from '.VIMEOGRAPHY_GALLERY_META_TABLE.' AS meta JOIN '.VIMEOGRAPHY_GALLERY_TABLE.' AS gallery ON meta.gallery_id = gallery.id WHERE meta.gallery_id = '.$gallery_id.' LIMIT 1;');
+		if (! $this->_gallery)
+		{
+			$this->messages[] = array('type' => 'error', 'heading' => 'Uh oh.', 'message' => __('That gallery no longer exists. It\'s gone. Kaput!') );
+		}
+		else
+		{
+      // Check if the active theme has a settings file.
+      $settings_file = VIMEOGRAPHY_THEME_PATH . $this->_gallery[0]->theme_name . '/settings.php';
+      
+      if (file_exists($settings_file))
+      {
+        $this->theme_supports_settings = TRUE;
+        $this->_settings_file = $settings_file;    
+      }
+		}
+								
+		if (isset($_GET['created']) && $_GET['created'] == 1)
+		{
+			$this->messages[] = array('type' => 'success', 'heading' => __('Gallery created.'), 'message' => __('Well, that was easy.') );
+		}		
+	}
+	
+	/**
+	 * Enqueues the scripts and styles to be loaded on the edit gallery page.
+	 * 
+	 * @access private
+	 * @return void
+	 */
+	private static function _load_scripts()
+	{
 		wp_register_script( 'bootstrap-tooltip', VIMEOGRAPHY_URL.'media/js/bootstrap-tooltip.js');
 		wp_register_script( 'bootstrap-popover', VIMEOGRAPHY_URL.'media/js/bootstrap-popover.js');
 		wp_register_script( 'bootstrap-collapse', VIMEOGRAPHY_URL.'media/js/bootstrap-collapse.js');
@@ -34,47 +87,6 @@ class Vimeography_Gallery_Edit extends Mustache
 		wp_enqueue_script( 'bootstrap-affix');
 		wp_enqueue_script( 'jquery-mousewheel');
 		wp_enqueue_script( 'jquery-custom-scrollbar');
-		
-		global $wpdb;
-		
-		if (isset($_GET['id']))
-		{
-			$gallery_id = $wpdb->escape(intval($_GET['id']));
-			
-			if (isset($_GET['refresh']) AND $_GET['refresh'] == 1)
-			{
-				$this->delete_vimeography_cache($gallery_id);
-				$this->messages[] = array('type' => 'success', 'heading' => 'So fresh.', 'message' => 'Your videos have been refreshed.');
-			}
-			
-			if (isset($_GET['delete-theme-settings']) AND $_GET['delete-theme-settings'] == 1)
-			{
-				$transient = delete_transient('vimeography_theme_settings_'.$gallery_id);
-				$this->messages[] = array('type' => 'success', 'heading' => __('Theme settings cleared.'), 'message' => __('Your gallery appearance has been reset.'));
-			}
-		}
-				
-		$this->gallery = $wpdb->get_results('SELECT * from '.VIMEOGRAPHY_GALLERY_META_TABLE.' AS meta JOIN '.VIMEOGRAPHY_GALLERY_TABLE.' AS gallery ON meta.gallery_id = gallery.id WHERE meta.gallery_id = '.$gallery_id.' LIMIT 1;');
-		if (! $this->gallery)
-		{
-			$this->messages[] = array('type' => 'error', 'heading' => 'Uh oh.', 'message' => 'That gallery no longer exists. It\'s gone. Kaput!');
-		}
-		else
-		{
-      // Check if the active theme has a settings file.
-      $settings_file = VIMEOGRAPHY_THEME_PATH . $this->gallery[0]->theme_name . '/settings.php';
-      
-      if (file_exists($settings_file))
-      {
-        $this->theme_supports_settings = TRUE;
-        $this->_settings_file = $settings_file;    
-      }
-		}
-								
-		if (isset($_GET['created']) && $_GET['created'] == 1)
-		{
-			$this->messages[] = array('type' => 'success', 'heading' => 'Gallery created.', 'message' => 'Welp, that was easy.');
-		}		
 	}
 	
   /**
@@ -105,7 +117,7 @@ class Vimeography_Gallery_Edit extends Mustache
         $class = 'Vimeography_Theme_Settings_'.ucfirst($setting['type']);
         
         if (!class_exists($class))
-          throw new Vimeography_Exception('The "'.$setting['type'].'" setting type does not exist or is improperly structured.');	
+          throw new Vimeography_Exception( __('The "') . $setting['type'] . __('" setting type does not exist or is improperly structured.') );	
         
         // Load the template file for the current theme setting.			
         $mustache = new $class;
@@ -123,57 +135,7 @@ class Vimeography_Gallery_Edit extends Mustache
       return FALSE;
     }
   }
-		
-	/**
-	 * Returns the base admin url for the plugin. This is a common function.
-	 * 
-	 * @access public
-	 * @static
-	 * @return string
-	 */
-	public static function admin_url()
-	{
-		return get_admin_url().'admin.php?page=vimeography-';
-	}
-						
-	/**
-	 * You don't know what this function does? Shame on you... This is a common function.
-	 * 
-	 * @access public
-	 * @return html
-	 */
-	public function vimeography()
-	{
-		if (function_exists('do_shortcode'))
-			return do_shortcode( "[vimeography id='".$this->gallery[0]->id."']" );
-	}
-	
-	/**
-	 * Get the JSON data stored in the Vimeography cache for the provided gallery id.
-	 * 
-	 * @access public
-	 * @static
-	 * @param mixed $id
-	 * @return void
-	 */
-	public static function get_vimeography_cache($id)
-	{
-    return FALSE === ( $vimeography_cache_results = get_transient( 'vimeography_cache_'.$id ) ) ? FALSE : $vimeography_cache_results;
-  }
-	
-	/**
-	 * Delete the transient cache entry for the given gallery id. This is a common function.
-	 * 
-	 * @access public
-	 * @static
-	 * @param mixed $id
-	 * @return void
-	 */
-	public static function delete_vimeography_cache($id)
-  {
-    return delete_transient('vimeography_cache_'.$id);
-  }
-    
+										    
 	public static function basic_nonce()
 	{
 	   return wp_nonce_field('vimeography-basic-action','vimeography-basic-verification');
@@ -192,86 +154,16 @@ class Vimeography_Gallery_Edit extends Mustache
 	public function selected()
 	{
 		return array(
-			$this->gallery[0]->cache_timeout => TRUE,
+			$this->_gallery[0]->cache_timeout => TRUE,
 		);
 	}
 	
 	public function gallery()
 	{
-		$this->gallery[0]->featured_video = $this->gallery[0]->featured_video === 0 ? '' : $this->gallery[0]->featured_video;
-		return $this->gallery;
+		$this->_gallery[0]->featured_video = $this->_gallery[0]->featured_video === 0 ? '' : $this->_gallery[0]->featured_video;
+		return $this->_gallery;
 	}
-	
-	/**
-	 * Creates the theme list to show in the appearance tab.
-	 * 
-	 * @access public
-	 * @return array
-	 */
-	public function themes()
-	{
-		$themes = array();
-		
-		$theme_data = $this->_get_vimeography_themes();
-		
-		foreach ($theme_data as $theme_info)
-		{
-			
-			$local_path = VIMEOGRAPHY_THEME_PATH . strtolower($theme_info['name']) . '/' . strtolower($theme_info['name']) .'.jpg';
-			
-			$theme_info['thumbnail'] = file_exists($local_path) ? VIMEOGRAPHY_THEME_URL . strtolower($theme_info['name']) . '/' . strtolower($theme_info['name']) .'.jpg' : 'http://placekitten.com/g/200/150';
-			$theme_info['active'] = strtolower($theme_info['name']) == $this->gallery[0]->theme_name ? TRUE : FALSE;
-									
-			$themes[] = $theme_info;
-		}
 						
-		return $themes;
-	}
-	
-	/**
-	 * Finds list of installed Vimeography themes by finding the directories in
-	 * the theme folder and sending the mustache file to wordpress function
-	 * get_file_data().
-	 * 
-	 * @access private
-	 * @return array of themes
-	 */
-	private function _get_vimeography_themes() {
-		$themes = array();
-		
-		$directories = glob(VIMEOGRAPHY_THEME_PATH.'*' , GLOB_ONLYDIR);
-		
-		foreach ($directories as $dir)
-		{
-			$theme_name = substr($dir, strrpos($dir, '/')+1);
-			$themes[] = $this->_get_theme_data($dir.'/'.$theme_name.'.php');
-		}
-		
-		return $themes;
-	}
-	
-	/**
-	 * Retrieves the meta data from the headers of a given theme file.
-	 * 
-	 * @access private
-	 * @static
-	 * @param mixed $plugin_file
-	 * @return void
-	 */
-	private static function _get_theme_data($theme_file)
-	{
-		$default_headers  = array(
-			'name'          => 'Theme Name',
-			'theme-uri'     => 'Theme URI',
-			'version'       => 'Version',
-			'description'   => 'Description',
-			'author'        => 'Author',
-			'author-uri'    => 'Author URI',
-		);
-		
-		return get_file_data( $theme_file, $default_headers );
-	}
-				
 	/**
 	 * Controls the POST data and sends it to the proper validation function.
 	 * 

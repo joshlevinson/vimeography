@@ -10,7 +10,7 @@ License: MIT
 */
 	
 if (!function_exists('json_decode'))
-	wp_die('Vimeography needs the JSON PHP extension.');
+	wp_die('Vimeography requires the JSON PHP extension.');
 	
 global $wpdb;
 $wp_upload_dir = wp_upload_dir();
@@ -28,8 +28,12 @@ define( 'VIMEOGRAPHY_GALLERY_TABLE', $wpdb->prefix . "vimeography_gallery");
 define( 'VIMEOGRAPHY_GALLERY_META_TABLE', $wpdb->prefix . "vimeography_gallery_meta");
 define( 'VIMEOGRAPHY_CURRENT_PAGE', basename($_SERVER['PHP_SELF']));
 
-require_once(VIMEOGRAPHY_PATH . '/vendor/mustache/Mustache.php');
-		
+require_once(VIMEOGRAPHY_PATH .'lib/exception.php');
+
+// Require Mustache.php
+if (! class_exists('Mustache'))
+	require_once(VIMEOGRAPHY_PATH . '/vendor/mustache/Mustache.php');
+	
 class Vimeography
 {								
 	public function __construct()
@@ -302,18 +306,19 @@ class Vimeography
 		return $links;
 	}
 	
-    /**
-     * Action target that displays the popup to insert a form to a post/page.
-     * 
-     * @access public
-     * @return void
-     */
-    public function vimeography_add_mce_popup(){
-		require_once(VIMEOGRAPHY_PATH . 'lib/admin/view/vimeography/mce.php');
-		$mustache = new Vimeography_MCE();
-		$template = $this->_load_template('vimeography/mce');
-		echo $mustache->render($template);
-    }
+  /**
+   * Action target that displays the popup to insert a form to a post/page.
+   * 
+   * @access public
+   * @return void
+   */
+  public function vimeography_add_mce_popup()
+  {
+  	require_once(VIMEOGRAPHY_PATH . 'lib/admin/view/vimeography/mce.php');
+  	$mustache = new Vimeography_MCE();
+  	$template = $this->_load_template('vimeography/mce');
+  	echo $mustache->render($template);
+  }
 
 	/**
 	 * Adds a new top level menu to the admin menu.
@@ -323,7 +328,6 @@ class Vimeography
 	 */
 	public function vimeography_add_menu()
 	{
-		
 		global $submenu;
 		
 		add_menu_page( 'Vimeography Page Title', 'Vimeography', 'manage_options', 'vimeography-edit-galleries', '', VIMEOGRAPHY_URL.'media/img/vimeography-icon.png' );
@@ -333,7 +337,6 @@ class Vimeography
 		$submenu['vimeography-edit-galleries'][500] = array( 'Buy Themes', 'manage_options' , 'http://vimeography.com/themes' );
 		add_submenu_page( 'vimeography-edit-galleries', 'Vimeography Pro', 'Vimeography Pro', 'manage_options', 'vimeography-pro', array(&$this, 'vimeography_render_template' ));
 		add_submenu_page( 'vimeography-edit-galleries', 'Help', 'Help', 'manage_options', 'vimeography-help', array(&$this, 'vimeography_render_template' ));
-
 	}
 	
 	/**
@@ -363,6 +366,8 @@ class Vimeography
 		wp_enqueue_script( 'bootstrap-transition');
 		wp_enqueue_script( 'bootstrap-alert');
 		wp_enqueue_script( 'vimeography-admin.js');
+		
+		require_once(VIMEOGRAPHY_PATH . 'lib/admin/base.php');
 				
 		switch(current_filter())
 		{
@@ -618,147 +623,147 @@ class Vimeography
 	 */
 	public static function get_vimeography_cache($id)
 	{
-		return FALSE === ( $vimeography_cache_results = get_transient( 'vimeography_cache_'.$id ) ) ? FALSE : $vimeography_cache_results;
-    }
+  	return FALSE === ( $vimeography_cache_results = get_transient( 'vimeography_cache_'.$id ) ) ? FALSE : $vimeography_cache_results;
+  }
     
-    /**
-     * Set the JSON data to the Vimeography cache for the provided gallery id.
-     * 
-     * @access public
-     * @static
-     * @param mixed $id
-     * @param mixed $data
-     * @param mixed $cache_limit
-     * @return void
-     */
-    public static function set_vimeography_cache($id, $data, $cache_limit)
-    {
-		return set_transient( 'vimeography_cache_'.$id, $data, $cache_limit );
-    }
+  /**
+   * Set the JSON data to the Vimeography cache for the provided gallery id.
+   * 
+   * @access public
+   * @static
+   * @param mixed $id
+   * @param mixed $data
+   * @param mixed $cache_limit
+   * @return void
+   */
+  public static function set_vimeography_cache($id, $data, $cache_limit)
+  {
+    return set_transient( 'vimeography_cache_'.$id, $data, $cache_limit );
+  }
     
-    /**
-     * Clear the Vimeography cache for the provided gallery id.
-     * 
-     * @access public
-     * @static
-     * @param mixed $id
-     * @return void
-     */
-    public static function delete_vimeography_cache($id)
-    {
-    	return delete_transient('vimeography_cache_'.$id);
-    }
+  /**
+   * Clear the Vimeography cache for the provided gallery id.
+   * 
+   * @access public
+   * @static
+   * @param mixed $id
+   * @return void
+   */
+  public static function delete_vimeography_cache($id)
+  {
+  	return delete_transient('vimeography_cache_'.$id);
+  }
     
-    /**
-     * Moves the given folder to the given destination.
-     * 
-     * @access private
-     * @param array $args (default: array())
-     * @return void
-     */
-    private function _move_folder($args = array())
-    {
-		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-		// Replaces simple `WP_Filesystem();` call to prevent any extraction issues
-		// @link http://wpquestions.com/question/show/id/2685
-		if (! function_exists('__return_direct'))
-		{
-			function __return_direct() { return 'direct'; }
-		}
-		
-		add_filter( 'filesystem_method', '__return_direct' );	
-		WP_Filesystem();
-		remove_filter( 'filesystem_method', '__return_direct' );
-		
-	    global $wp_filesystem;
-		$defaults = array( 'source' => '', 'destination' => '', //Please always pass these
-						'clear_destination' => false, 'clear_working' => false,
-						'hook_extra' => array());
-
-		$args = wp_parse_args($args, $defaults);
-		extract($args);
-		
-		@set_time_limit( 300 );
-
-		if ( empty($source) || empty($destination) )
-			return new WP_Error('bad_request', 'bad request.');
-			
-		// $this->skin->feedback('installing_package');
-
-		//Retain the Original source and destinations
-		$remote_source = $source;
-		$local_destination = $destination;
-		
-		if (! $wp_filesystem->dirlist($remote_source)) return FALSE;
-
-		$source_files = array_keys( $wp_filesystem->dirlist($remote_source) );
-		$remote_destination = $wp_filesystem->find_folder($local_destination);
-		
-		//Locate which directory to copy to the new folder, This is based on the actual folder holding the files.
-		if ( 1 == count($source_files) && $wp_filesystem->is_dir( trailingslashit($source) . $source_files[0] . '/') ) //Only one folder? Then we want its contents.
-			$source = trailingslashit($source) . trailingslashit($source_files[0]);
-		elseif ( count($source_files) == 0 )
-			return new WP_Error( 'incompatible_archive', 'incompatible archive string', __( 'The plugin contains no files.' ) ); //There are no files?
-		else //Its only a single file, The upgrader will use the foldername of this file as the destination folder. foldername is based on zip filename.
-			$source = trailingslashit($source);
-			
-		//Has the source location changed? If so, we need a new source_files list.
-		if ( $source !== $remote_source )
-			$source_files = array_keys( $wp_filesystem->dirlist($source) );
-
-		if ( $clear_destination ) {
-			//We're going to clear the destination if there's something there
-			//$this->skin->feedback('remove_old');
-			$removed = true;
-			if ( $wp_filesystem->exists($remote_destination) )
-				$removed = $wp_filesystem->delete($remote_destination, true);
-			if ( is_wp_error($removed) )
-				return $removed;
-			else if ( ! $removed )
-				return new WP_Error('remove_old_failed', 'couldnt remove old');
-		} elseif ( $wp_filesystem->exists($remote_destination) ) {
-			//If we're not clearing the destination folder and something exists there already, Bail.
-			//But first check to see if there are actually any files in the folder.
-			$_files = $wp_filesystem->dirlist($remote_destination);
-			if ( ! empty($_files) ) {
-				$wp_filesystem->delete($remote_source, true); //Clear out the source files.
-				return new WP_Error('folder_exists', 'folder exists string', $remote_destination );
-			}
-		}
-		
-		//Create themes folder, if needed
-		if ( !$wp_filesystem->exists(VIMEOGRAPHY_THEME_PATH) )
-			if ( !$wp_filesystem->mkdir(VIMEOGRAPHY_THEME_PATH, FS_CHMOD_DIR) )
-				return new WP_Error('mkdir_failed', 'mkdir failer string', $remote_destination);
-				
-		//Create destination if needed
-		if ( !$wp_filesystem->exists($remote_destination) )
-			if ( !$wp_filesystem->mkdir($remote_destination, FS_CHMOD_DIR) )
-				return new WP_Error('mkdir_failed', 'mkdir failer string', $remote_destination);
-
-		// Copy new version of item into place.
-		$result = copy_dir($source, $remote_destination);
-		
-		if ( is_wp_error($result) ) {
-			if ( $clear_working )
-				$wp_filesystem->delete($remote_source, true);
-			return $result;
-		}
-
-		//Clear the Working folder?
-		if ( $clear_working )
-			$wp_filesystem->delete($remote_source, true);
-
-		$destination_name = basename( str_replace($local_destination, '', $destination) );
-		if ( '.' == $destination_name )
-			$destination_name = '';
-
-		$result = compact('local_source', 'source', 'source_name', 'source_files', 'destination', 'destination_name', 'local_destination', 'remote_destination', 'clear_destination', 'delete_source_dir');
-		
-		//Bombard the calling function will all the info which we've just used.
-		return $result;
-
-    }
+  /**
+   * Moves the given folder to the given destination.
+   * 
+   * @access private
+   * @param array $args (default: array())
+   * @return void
+   */
+  private function _move_folder($args = array())
+  {
+  	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+  	// Replaces simple `WP_Filesystem();` call to prevent any extraction issues
+  	// @link http://wpquestions.com/question/show/id/2685
+  	if (! function_exists('__return_direct'))
+  	{
+  		function __return_direct() { return 'direct'; }
+  	}
+  	
+  	add_filter( 'filesystem_method', '__return_direct' );	
+  	WP_Filesystem();
+  	remove_filter( 'filesystem_method', '__return_direct' );
+  	
+      global $wp_filesystem;
+  	$defaults = array( 'source' => '', 'destination' => '', //Please always pass these
+  					'clear_destination' => false, 'clear_working' => false,
+  					'hook_extra' => array());
+  
+  	$args = wp_parse_args($args, $defaults);
+  	extract($args);
+  	
+  	@set_time_limit( 300 );
+  
+  	if ( empty($source) || empty($destination) )
+  		return new WP_Error('bad_request', 'bad request.');
+  		
+  	// $this->skin->feedback('installing_package');
+  
+  	//Retain the Original source and destinations
+  	$remote_source = $source;
+  	$local_destination = $destination;
+  	
+  	if (! $wp_filesystem->dirlist($remote_source)) return FALSE;
+  
+  	$source_files = array_keys( $wp_filesystem->dirlist($remote_source) );
+  	$remote_destination = $wp_filesystem->find_folder($local_destination);
+  	
+  	//Locate which directory to copy to the new folder, This is based on the actual folder holding the files.
+  	if ( 1 == count($source_files) && $wp_filesystem->is_dir( trailingslashit($source) . $source_files[0] . '/') ) //Only one folder? Then we want its contents.
+  		$source = trailingslashit($source) . trailingslashit($source_files[0]);
+  	elseif ( count($source_files) == 0 )
+  		return new WP_Error( 'incompatible_archive', 'incompatible archive string', __( 'The plugin contains no files.' ) ); //There are no files?
+  	else //Its only a single file, The upgrader will use the foldername of this file as the destination folder. foldername is based on zip filename.
+  		$source = trailingslashit($source);
+  		
+  	//Has the source location changed? If so, we need a new source_files list.
+  	if ( $source !== $remote_source )
+  		$source_files = array_keys( $wp_filesystem->dirlist($source) );
+  
+  	if ( $clear_destination ) {
+  		//We're going to clear the destination if there's something there
+  		//$this->skin->feedback('remove_old');
+  		$removed = true;
+  		if ( $wp_filesystem->exists($remote_destination) )
+  			$removed = $wp_filesystem->delete($remote_destination, true);
+  		if ( is_wp_error($removed) )
+  			return $removed;
+  		else if ( ! $removed )
+  			return new WP_Error('remove_old_failed', 'couldnt remove old');
+  	} elseif ( $wp_filesystem->exists($remote_destination) ) {
+  		//If we're not clearing the destination folder and something exists there already, Bail.
+  		//But first check to see if there are actually any files in the folder.
+  		$_files = $wp_filesystem->dirlist($remote_destination);
+  		if ( ! empty($_files) ) {
+  			$wp_filesystem->delete($remote_source, true); //Clear out the source files.
+  			return new WP_Error('folder_exists', 'folder exists string', $remote_destination );
+  		}
+  	}
+  	
+  	//Create themes folder, if needed
+  	if ( !$wp_filesystem->exists(VIMEOGRAPHY_THEME_PATH) )
+  		if ( !$wp_filesystem->mkdir(VIMEOGRAPHY_THEME_PATH, FS_CHMOD_DIR) )
+  			return new WP_Error('mkdir_failed', 'mkdir failer string', $remote_destination);
+  			
+  	//Create destination if needed
+  	if ( !$wp_filesystem->exists($remote_destination) )
+  		if ( !$wp_filesystem->mkdir($remote_destination, FS_CHMOD_DIR) )
+  			return new WP_Error('mkdir_failed', 'mkdir failer string', $remote_destination);
+  
+  	// Copy new version of item into place.
+  	$result = copy_dir($source, $remote_destination);
+  	
+  	if ( is_wp_error($result) ) {
+  		if ( $clear_working )
+  			$wp_filesystem->delete($remote_source, true);
+  		return $result;
+  	}
+  
+  	//Clear the Working folder?
+  	if ( $clear_working )
+  		$wp_filesystem->delete($remote_source, true);
+  
+  	$destination_name = basename( str_replace($local_destination, '', $destination) );
+  	if ( '.' == $destination_name )
+  		$destination_name = '';
+  
+  	$result = compact('local_source', 'source', 'source_name', 'source_files', 'destination', 'destination_name', 'local_destination', 'remote_destination', 'clear_destination', 'delete_source_dir');
+  	
+  	//Bombard the calling function will all the info which we've just used.
+  	return $result;
+  
+  }
 	
 }
 
