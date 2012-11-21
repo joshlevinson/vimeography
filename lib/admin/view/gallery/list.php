@@ -64,6 +64,7 @@ class Vimeography_Gallery_List extends Vimeography_Base
 		foreach ($this->_galleries as $gallery)
 		{
 			$gallery->edit_url = get_admin_url().'admin.php?page=vimeography-edit-galleries&id='.$gallery->id;
+			$gallery->theme_name = ucfirst($gallery->theme_name);
 									
 			$galleries[] = $gallery;
 		}
