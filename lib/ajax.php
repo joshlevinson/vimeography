@@ -4,11 +4,16 @@ class Vimeography_Ajax extends Vimeography
 {
   public function __construct()
   {
-    add_action( 'wp_ajax_vimeography_ajax_get_cached_videos', array( $&this, 'vimeography_ajax_get_cached_videos' ) );
+    add_action( 'wp_ajax_vimeography_ajax_get_cached_videos', array( &$this, 'vimeography_ajax_get_cached_videos' ) );
   }
 
-  public function vimeography_ajax_get_cached_videos($gallery_id)
+  public function vimeography_ajax_get_cached_videos()
   {
+    // This will automatically die; if it fails
+    check_ajax_referer('vimeography-get-cached-videos');
+
+    $gallery_id = intval( $_POST['gallery_id'] );
+
     $data = $this->get_vimeography_cache($gallery_id);
     $videos = json_decode($data[0]);
 
